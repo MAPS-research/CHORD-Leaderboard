@@ -1,0 +1,19 @@
+repo: MAPS-research/CHORD-Leaderboard
+lookback_days: 21
+arxiv_categories: [cs.CL, cs.LG]
+# Raw arXiv query fragments, OR-ed together.
+arxiv_query_terms:
+  - 'abs:"OpenWebText"'
+  - 'abs:"diffusion language model"'
+  - 'abs:"diffusion language models"'
+  - 'abs:"discrete diffusion"'
+  - 'abs:"masked diffusion"'
+  - '(abs:"flow matching" AND abs:language)'
+  - 'abs:"gen-PPL"'
+  - 'abs:"generative perplexity"'
+hf_queries: [owt, openwebtext]
+prefilter_terms: [diffusion, flow, language model, text generation, denois, masked, autoregressive]
+judge_model: claude-opus-5-5
+max_judge_calls: 60
+judge_workers: 4          # concurrent `claude -p` processes
+max_readme_chars: 30000

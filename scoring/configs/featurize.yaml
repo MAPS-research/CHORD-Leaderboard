@@ -1,0 +1,31 @@
+# CHORD Leaderboard, Table 2 protocol (unconditional generation), 27B CHORD encoder only.
+# Same reference pool, folds and encoder protocol as the paper's
+# CHORD-Experiment/experiments/generator_eval/configs/featurize.yaml; the paper's six generators
+# are re-listed in runs.jsonl so new models are ranked jointly with them.
+# Features already computed for the paper are copied (not linked) into output_dir/features
+# by scoring/jobs/seed_features.sh, so featurization only embeds the new runs.
+#
+#   python -m chord.featurize --config <this file> --only-encoder qwen35-27b-prompteol-coherence-l62
+seed: 20260920
+runs_manifest: runs.jsonl
+output_dir: /scratch/jz5770/chord_leaderboard/table2
+text_normalization: whitespace
+reference:
+  path: /scratch/jz5770/CHORD_open_source/outputs/casestudy/unconditional_generation/human/reference_pool.jsonl
+  text_key: text
+  limit: 5150
+encoders:
+  - name: qwen35-27b-prompteol-coherence-l62
+    batch_size: 8
+    protocol:
+      backend: huggingface
+      model: Qwen/Qwen3.5-27B
+      revision: fc05daec18b0a78c049392ed2e771dde82bdf654
+      tokenizer_revision: fc05daec18b0a78c049392ed2e771dde82bdf654
+      max_length: 532
+      layer: -3
+      pooling: prompteol
+      prompteol_template: coherence
+      normalization: none
+      model_dtype: bfloat16
+      cache_dtype: float32

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chord-leaderboard-discovery"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "httpx>=0.27",
+  "pyyaml>=6",
+  "pydantic>=2.6",
+  "huggingface_hub>=0.24",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "respx>=0.21"]
+
+[tool.setuptools.packages.find]
+include = ["discovery*"]
+
+[tool.setuptools.package-data]
+discovery = ["config.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["live: calls real external APIs (deselected by default)"]
+addopts = "-m 'not live'"

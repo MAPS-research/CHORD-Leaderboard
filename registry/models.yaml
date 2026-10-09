@@ -69,7 +69,7 @@
 - {id: s-flm, name: S-FLM, paper: {arxiv: "2605.11125", published: 2026-05-11}, github: "https://github.com/jdeschena/s-flm",
    checkpoint: {kind: hf, ref: jdeschena/s-flm}, family: flow, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint owt/sfm.ckpt; exact velocity, greedy noise removal, 32 NFE (temperature unverified)"}, status: excluded, added: 2026-10-08, source: seed}
 - {id: ssdlm, name: SSD-LM, paper: {arxiv: "2210.17432", venue: ACL 2023, published: 2022-10-31}, github: "https://github.com/xhan77/ssd-lm",
-   checkpoint: {kind: hf, ref: xhan77/ssdlm}, family: continuous, train_data: owt, status: queued, added: 2026-10-08, source: seed}   # semi-AR, 25-token blocks
+   checkpoint: {kind: hf, ref: xhan77/ssdlm}, params: 407M, group: continuous, family: continuous, train_data: owt, status: scored, added: 2026-10-08, source: seed}   # semi-AR, 25-token blocks
 - {id: plaid-1b, name: PLAID 1B, paper: {arxiv: "2305.18619", venue: NeurIPS 2023, published: 2023-05-30}, github: "https://github.com/igul222/plaid",
    checkpoint: {kind: github-release, ref: "https://github.com/igul222/plaid/releases/tag/v1.0.0"}, params: 1.3B, group: continuous, family: continuous, train_data: owt2, status: scored, added: 2026-10-08, source: seed}
 

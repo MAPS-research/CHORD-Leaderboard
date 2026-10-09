@@ -57,3 +57,12 @@ def test_pages_builds_and_deploys_on_data_or_site_changes():
     assert any("python -m leaderboard_site.build" in r for r in runs)
     assert any(u.startswith("actions/upload-pages-artifact@") for u in uses)
     assert any(u.startswith("actions/deploy-pages@") for u in uses)
+
+
+def test_pages_stamps_asset_links_with_the_commit():
+    run = "\n".join(s.get("run", "") for s in _load("pages.yml")["jobs"]["deploy"]["steps"])
+    assert 'app.js?v=${GITHUB_SHA::7}' in run and 'style.css?v=${GITHUB_SHA::7}' in run
+
+
+def test_page_revalidates_leaderboard_data():
+    assert 'fetch("data/leaderboard.json", { cache: "no-cache" })' in (WF.parents[1] / "site" / "app.js").read_text()

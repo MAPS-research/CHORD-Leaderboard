@@ -64,7 +64,7 @@ document.getElementById("settings-toggle").addEventListener("click", e => {
   e.currentTarget.setAttribute("aria-expanded", String(!info.hidden));
 });
 
-fetch("data/leaderboard.json")
+fetch("data/leaderboard.json", { cache: "no-cache" })
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => {
     data = d;

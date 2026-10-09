@@ -11,6 +11,7 @@
 #     --export=ALL,SIZE=B,TAG=elfB,SAMPLING=scoring/configs/elf_b_sde32_sccfg3.yaml scoring/jobs/gen_elf.slurm
 set -uo pipefail
 source scoring/jobs/common.sh
+claim_or_exit
 SAMPLING_ABS=$LB_REPO/$SAMPLING
 nvidia-smi --query-gpu=name,memory.total --format=csv
 rc=0

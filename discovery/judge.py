@@ -6,7 +6,7 @@ import time
 from typing import get_args
 
 from discovery.keys import github_key
-from discovery.models import Candidate, CheckpointRef, Evidence, Family, Judgement, Verdict, WeightKind
+from discovery.models import Candidate, CheckpointRef, Evidence, Family, Judgement, TypeJudgement, Verdict, WeightKind
 
 SYSTEM_PROMPT = """\
 You screen research papers for the CHORD Leaderboard, which scores open-ended text generators under a strict protocol.
@@ -23,6 +23,7 @@ Judge ONLY from the ABSTRACT and README given by the user. Rules:
 - unconditional: "yes" if the text reports unconditional samples or the generative perplexity of samples generated from scratch, or the README shows a sampling command without a prompt; "no" if the model only supports conditional tasks.
 - official_checkpoints: only checkpoints the authors present as their own release for an OWT-trained model. Models in a Hugging Face collection that the README links (they appear in WEIGHT LINKS FOUND) count as presented by the authors; support them with the README sentence that links the collection or describes those checkpoints. Exclude datasets, checkpoints the work starts from or compares against, and checkpoints trained on other corpora.
 - official_repo: the authors' own repository for this paper, chosen from REPOSITORIES; null if none is clearly theirs.
+- generation_type: how the model generates text, as one of three types: "ar" for autoregressive (left-to-right next-token) models; "discrete" for diffusion or flow models over discrete tokens (masked, absorbing, uniform, block or hybrid discrete diffusion, discrete flow matching); "continuous" for diffusion or flow models in a continuous space (token embeddings, the simplex, or a latent space). Quote the text that states it; answer "unclear" if the text does not say.
 - family_guess: one of ar, masked-dlm, uniform-dlm, hybrid-dlm, block-hybrid, continuous, flow, distilled; null if unclear.
 - notes: at most two sentences for the human reviewer, e.g. which checkpoints are OWT-trained or which sampler settings the paper uses.
 Reply only with the JSON object required by the output schema."""
@@ -45,9 +46,11 @@ VERDICT_SCHEMA = {
             "properties": {"kind": {"enum": list(get_args(WeightKind))}, "ref": {"type": "string"}, "evidence": _EVIDENCE},
             "required": ["kind", "ref", "evidence"]}},
         "family_guess": {"type": ["string", "null"]},
+        "generation_type": {"type": "object", "properties": {"value": {"enum": ["ar", "discrete", "continuous", "unclear"]},
+                                                             "evidence": _EVIDENCE}, "required": ["value", "evidence"]},
         "notes": {"type": "string"},
     },
-    "required": ["owt_trained", "unconditional", "official_repo", "official_checkpoints", "family_guess", "notes"],
+    "required": ["owt_trained", "unconditional", "official_repo", "official_checkpoints", "family_guess", "generation_type", "notes"],
 }
 ATTEMPTS = 3
 BASE_DELAY_S = 5
@@ -120,8 +123,12 @@ def validate_verdict(raw: dict, cand: Candidate) -> Verdict:
     repo_keys = {github_key(r) for r in cand.repos}
     repo = raw["official_repo"] if raw["official_repo"] and github_key(raw["official_repo"]) in repo_keys else None
     family = raw["family_guess"] if raw["family_guess"] in get_args(Family) else None
+    gt = raw["generation_type"]
+    gt_evidence = evidence(gt["evidence"])
+    generation_type = TypeJudgement(value=gt["value"] if gt_evidence else "unclear", evidence=gt_evidence)
     return Verdict(owt_trained=judgement(raw["owt_trained"]), unconditional=judgement(raw["unconditional"]),
-                   official_repo=repo, official_checkpoints=checkpoints, family_guess=family, notes=raw.get("notes", ""))
+                   official_repo=repo, official_checkpoints=checkpoints, family_guess=family,
+                   generation_type=generation_type, notes=raw.get("notes", ""))
 
 
 def _call(runner, model: str, cand: Candidate, sleep) -> dict:

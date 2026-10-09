@@ -6,10 +6,10 @@
 # --- AR baselines ---
 - {id: gpt2, name: GPT-2 small, paper: null, github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2},
    family: ar, params: 124M, train_data: webtext, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}
-- {id: gpt2-medium, name: GPT-2 medium, paper: null, github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2-medium},
-   family: ar, params: 355M, train_data: webtext, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
-- {id: gpt2-large, name: GPT-2 large, paper: null, github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2-large},
-   family: ar, params: 774M, train_data: webtext, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
+- {id: gpt2-medium, name: GPT-2-medium, paper: {url: "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf", published: 2019-02-14}, github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2-medium},
+   group: ar, family: ar, params: 355M, train_data: webtext, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
+- {id: gpt2-large, name: GPT-2-large, paper: {url: "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf", published: 2019-02-14}, github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2-large},
+   group: ar, family: ar, params: 774M, train_data: webtext, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
 - {id: gpt2-xl, name: GPT-2 XL, paper: null, github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2-xl},
    family: ar, params: 1.5B, train_data: webtext, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}
 - {id: ar-owt, name: AR-OWT (MDLM authors), paper: {arxiv: "2406.07524", venue: NeurIPS 2024}, github: "https://github.com/kuleshov-group/mdlm",
@@ -19,12 +19,12 @@
    checkpoint: {kind: hf, ref: kuleshov-group/ar-noeos-owt}, family: ar, params: 162M, train_data: owt, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}
 
 # --- Masked / uniform / hybrid discrete diffusion ---
-- {id: mdlm-owt, name: MDLM, paper: {arxiv: "2406.07524", venue: NeurIPS 2024}, github: "https://github.com/kuleshov-group/mdlm",
-   checkpoint: {kind: hf, ref: kuleshov-group/mdlm-owt}, family: masked-dlm, params: 169.6M, train_data: owt, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
+- {id: mdlm-owt, name: MDLM, paper: {arxiv: "2406.07524", venue: NeurIPS 2024, published: 2024-06-11}, github: "https://github.com/kuleshov-group/mdlm",
+   checkpoint: {kind: hf, ref: kuleshov-group/mdlm-owt}, group: discrete, family: masked-dlm, params: 170M, train_data: owt, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
 - {id: mdlm-noeos-owt, name: MDLM noeos (BD3-LM), paper: {arxiv: "2503.09573", venue: ICLR 2025}, github: "https://github.com/kuleshov-group/bd3lms",
    checkpoint: {kind: hf, ref: kuleshov-group/mdlm-noeos-owt}, family: masked-dlm, params: 169.6M, train_data: owt, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}
-- {id: sedd-small, name: SEDD small, paper: {arxiv: "2310.16834", venue: ICML 2024}, github: "https://github.com/louaaron/Score-Entropy-Discrete-Diffusion",
-   checkpoint: {kind: hf, ref: louaaron/sedd-small}, family: masked-dlm, train_data: owt, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
+- {id: sedd-small, name: SEDD-small, paper: {arxiv: "2310.16834", venue: ICML 2024, published: 2023-10-25}, github: "https://github.com/louaaron/Score-Entropy-Discrete-Diffusion",
+   checkpoint: {kind: hf, ref: louaaron/sedd-small}, params: 170M, group: discrete, family: masked-dlm, train_data: owt, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
 - {id: sedd-medium, name: SEDD medium, paper: {arxiv: "2310.16834", venue: ICML 2024}, github: "https://github.com/louaaron/Score-Entropy-Discrete-Diffusion",
    checkpoint: {kind: hf, ref: louaaron/sedd-medium}, family: masked-dlm, train_data: owt, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}
 - {id: sedd-noeos-owt, name: SEDD noeos (BD3-LM), paper: {arxiv: "2503.09573", venue: ICLR 2025}, github: "https://github.com/kuleshov-group/bd3lms",
@@ -87,10 +87,10 @@
    checkpoint: {kind: hf, ref: jdeschena/blockgen}, family: block-hybrid, train_data: owt, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}
 
 # --- Continuous diffusion / flow ---
-- {id: langflow-owt, name: LangFlow, paper: {arxiv: "2604.11748", venue: ICML 2026}, github: "https://github.com/nealchen2003/LangFlow",
-   checkpoint: {kind: hf, ref: Continuous-Rivals-Discrete/langflow-owt}, family: continuous, params: 170.8M, train_data: owt, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
-- {id: elf-l-owt, name: ELF-L, paper: {arxiv: "2605.10938"}, github: "https://github.com/lillian039/ELF",
-   checkpoint: {kind: hf, ref: embedded-language-flows/ELF-L-owt-torch}, family: flow, params: 652M, train_data: owt, tokenizer: t5, in_paper: true, status: scored, added: 2026-10-08, source: seed}
+- {id: langflow-owt, name: LangFlow, paper: {arxiv: "2604.11748", venue: ICML 2026, published: 2026-04-13}, github: "https://github.com/nealchen2003/LangFlow",
+   checkpoint: {kind: hf, ref: Continuous-Rivals-Discrete/langflow-owt}, group: continuous, family: continuous, params: 171M, train_data: owt, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
+- {id: elf-l-owt, name: ELF-L, paper: {arxiv: "2605.10938", published: 2026-05-11}, github: "https://github.com/lillian039/ELF",
+   checkpoint: {kind: hf, ref: embedded-language-flows/ELF-L-owt-torch}, group: continuous, family: flow, params: 652M, train_data: owt, tokenizer: t5, in_paper: true, status: scored, added: 2026-10-08, source: seed}
 - {id: elf-b-owt, name: ELF-B, paper: {arxiv: "2605.10938"}, github: "https://github.com/lillian039/ELF",
    checkpoint: {kind: hf, ref: embedded-language-flows/ELF-B-owt-torch}, family: flow, params: 105M, train_data: owt, tokenizer: t5, status: queued, added: 2026-10-08, source: seed}
 - {id: elf-m-owt, name: ELF-M, paper: {arxiv: "2605.10938"}, github: "https://github.com/lillian039/ELF",

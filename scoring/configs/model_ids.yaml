@@ -1,0 +1,13 @@
+# Model names used in scoring/configs/runs.jsonl (and the paper's score files) -> registry ids.
+Human-packed: human-heldout
+GPT2-medium-AR: gpt2-medium
+GPT2-large-AR: gpt2-large
+MDLM-OWT: mdlm-owt
+SEDD-small: sedd-small
+LangFlow-OWT: langflow-owt
+ELF-L-OWT: elf-l-owt
+GPT2-small-AR: gpt2
+GPT2-XL-AR: gpt2-xl
+SEDD-medium: sedd-medium
+ELF-B-OWT: elf-b-owt
+ELF-M-OWT: elf-m-owt

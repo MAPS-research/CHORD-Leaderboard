@@ -9,8 +9,9 @@
 #   sbatch -A <account> -p <partition> -o <logdir>/%x_%j.out --export=ALL,HF_MODEL=louaaron/sedd-medium,TAG=seddmedium scoring/jobs/gen_sedd.slurm
 set -uo pipefail
 source scoring/jobs/common.sh
+claim_or_exit
 activate chord-generators
-cd "$CHORD_EXP" && export PYTHONPATH=$PWD
+cd "$CHORD_EXP" && export PYTHONPATH=$CHORD_LIB:$PWD  # chord-generators has no chord install
 nvidia-smi --query-gpu=name,memory.total --format=csv
 MODEL_DIR=$(python -c "from huggingface_hub import snapshot_download; print(snapshot_download('$HF_MODEL'))") || exit 1
 rc=0

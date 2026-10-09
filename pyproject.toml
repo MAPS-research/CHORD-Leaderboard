@@ -17,7 +17,7 @@ dependencies = [
 test = ["pytest>=8", "respx>=0.21"]
 
 [tool.setuptools.packages.find]
-include = ["discovery*"]
+include = ["discovery*", "leaderboard_site*"]
 
 [tool.setuptools.package-data]
 discovery = ["config.yaml"]

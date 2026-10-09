@@ -38,7 +38,7 @@ def root(tmp_path: Path) -> Path:
     (reg / "models.yaml").write_text(
         "- id: mdlm-owt\n  name: MDLM\n  paper: {arxiv: '2406.07524'}\n  github: https://github.com/kuleshov-group/mdlm\n"
         "  checkpoint: {kind: hf, ref: kuleshov-group/mdlm-owt}\n  family: masked-dlm\n  train_data: owt\n"
-        "  status: scored\n  added: 2026-10-08\n  source: seed\n")
+        "  status: queued\n  added: 2026-10-08\n  source: seed\n")
     (reg / "rejected.yaml").write_text("- {key: 'arxiv:2609.00009', name: R, reason: r, decided: 2026-10-08, source: seed}\n")
     return tmp_path
 

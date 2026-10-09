@@ -70,3 +70,35 @@ def test_registry_entry_rejects_unknown_family():
     with pytest.raises(ValidationError):
         RegistryEntry(id="x", name="x", github="https://github.com/a/b", checkpoint=Checkpoint(kind="hf", ref="a/b"),
                       family="transformer", train_data="owt", status="queued", added=date(2026, 10, 8), source="seed")
+
+
+def _scored(**over):
+    base = dict(id="x", name="X", github="https://github.com/a/b", checkpoint=Checkpoint(kind="hf", ref="a/b"),
+                family="masked-dlm", train_data="owt", status="scored", added=date(2026, 10, 9), source="seed",
+                group="discrete", params="170M", paper=Paper(arxiv="2406.07524", published=date(2024, 6, 11)))
+    base.update(over)
+    return RegistryEntry(**base)
+
+
+def test_scored_entry_with_site_fields_is_valid():
+    assert _scored().group == "discrete"
+    assert _scored(paper=Paper(url="https://cdn.openai.com/x.pdf", published=date(2019, 2, 14))).paper.url
+
+
+@pytest.mark.parametrize("over", [
+    {"group": None}, {"params": None}, {"paper": None},
+    {"paper": Paper(arxiv="2406.07524")},           # no published date
+    {"paper": Paper(published=date(2024, 6, 11))},  # neither arxiv nor url
+])
+def test_scored_entry_missing_site_fields_is_rejected(over):
+    with pytest.raises(ValidationError):
+        _scored(**over)
+
+
+def test_group_must_be_one_of_three():
+    with pytest.raises(ValidationError):
+        _scored(group="flow")
+
+
+def test_queued_entry_needs_no_site_fields():
+    assert _scored(status="queued", group=None, params=None, paper=None).status == "queued"

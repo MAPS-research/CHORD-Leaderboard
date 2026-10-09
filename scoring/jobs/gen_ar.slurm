@@ -10,6 +10,7 @@
 #   sbatch -A <account> -p <partition> -o <logdir>/%x_%j.out --export=ALL,MODEL=gpt2-xl,TAG=gpt2xl scoring/jobs/gen_ar.slurm
 set -uo pipefail
 source scoring/jobs/common.sh
+claim_or_exit
 activate chord-gpu
 cd "$CHORD_EXP" && export PYTHONPATH=$PWD
 nvidia-smi --query-gpu=name,memory.total --format=csv

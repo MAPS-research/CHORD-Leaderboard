@@ -5,13 +5,13 @@
 
 # --- AR baselines ---
 - {id: gpt2, name: GPT-2-small, paper: {url: "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf", published: 2019-02-14}, github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2},
-   family: ar, params: 124M, train_data: webtext, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}
+   group: ar, family: ar, params: 124M, train_data: webtext, tokenizer: gpt2, status: scored, added: 2026-10-08, source: seed}
 - {id: gpt2-medium, name: GPT-2-medium, paper: {url: "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf", published: 2019-02-14}, github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2-medium},
    group: ar, family: ar, params: 355M, train_data: webtext, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
 - {id: gpt2-large, name: GPT-2-large, paper: {url: "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf", published: 2019-02-14}, github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2-large},
    group: ar, family: ar, params: 774M, train_data: webtext, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
 - {id: gpt2-xl, name: GPT-2-XL, paper: {url: "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf", published: 2019-02-14}, github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2-xl},
-   family: ar, params: 1.5B, train_data: webtext, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}
+   group: ar, family: ar, params: 1.5B, train_data: webtext, tokenizer: gpt2, status: scored, added: 2026-10-08, source: seed}
 
 # --- Masked / uniform / hybrid discrete diffusion ---
 - {id: mdlm-owt, name: MDLM, paper: {arxiv: "2406.07524", venue: NeurIPS 2024, published: 2024-06-11}, github: "https://github.com/kuleshov-group/mdlm",
@@ -57,9 +57,9 @@
 - {id: elf-l-owt, name: ELF-L, paper: {arxiv: "2605.10938", published: 2026-05-11}, github: "https://github.com/lillian039/ELF",
    checkpoint: {kind: hf, ref: embedded-language-flows/ELF-L-owt-torch}, group: continuous, family: flow, params: 652M, train_data: owt, tokenizer: t5, in_paper: true, status: scored, added: 2026-10-08, source: seed}
 - {id: elf-b-owt, name: ELF-B, paper: {arxiv: "2605.10938", published: 2026-05-11}, github: "https://github.com/lillian039/ELF",
-   checkpoint: {kind: hf, ref: embedded-language-flows/ELF-B-owt-torch}, family: flow, params: 105M, train_data: owt, tokenizer: t5, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: hf, ref: embedded-language-flows/ELF-B-owt-torch}, group: continuous, family: flow, params: 105M, train_data: owt, tokenizer: t5, status: scored, added: 2026-10-08, source: seed}
 - {id: elf-m-owt, name: ELF-M, paper: {arxiv: "2605.10938", published: 2026-05-11}, github: "https://github.com/lillian039/ELF",
-   checkpoint: {kind: hf, ref: embedded-language-flows/ELF-M-owt-torch}, family: flow, params: 342M, train_data: owt, tokenizer: t5, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: hf, ref: embedded-language-flows/ELF-M-owt-torch}, group: continuous, family: flow, params: 342M, train_data: owt, tokenizer: t5, status: scored, added: 2026-10-08, source: seed}
 - {id: fmlm-b-owt, name: FMLM, paper: {arxiv: "2602.16813", venue: NeurIPS 2026, published: 2026-02-18}, github: "https://github.com/david3684/flm",
    checkpoint: {kind: hf, ref: david3684/FMLM-B-OWT}, family: flow, params: 169.7M, train_data: owt, tokenizer: gpt2, sampler: {note: "gamma-sampling flow map, 1 step (paper headline); 32 steps gives the best PPL"}, status: excluded, added: 2026-10-08, source: seed}
 - {id: fmlm-plus, name: FMLM+ (posterior refinement), paper: {arxiv: "2606.24773", published: 2026-06-23}, github: "https://github.com/MananAg007/posterior-refinement",

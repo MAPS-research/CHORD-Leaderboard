@@ -11,3 +11,4 @@ GPT2-XL-AR: gpt2-xl
 SEDD-medium: sedd-medium
 ELF-B-OWT: elf-b-owt
 ELF-M-OWT: elf-m-owt
+ELF-M-T5Gemma2-distilled: elf-m-t5gemma2-distilled

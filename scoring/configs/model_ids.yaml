@@ -12,3 +12,10 @@ SEDD-medium: sedd-medium
 ELF-B-OWT: elf-b-owt
 ELF-M-OWT: elf-m-owt
 ELF-M-T5Gemma2-distilled: elf-m-t5gemma2-distilled
+Duo-DCD-OWT: duo-distilled
+Duo++-Psi-OWT: duo2-owt
+BD3LM-bs4-OWT: bd3lm-owt-block-size4
+GIDD-base-pu0.2-OWT: gidd-base-p-unif-0-2
+ADLM-OWT: adlm
+SSD-LM-OWT: ssdlm
+PLAID-1B-OWT2: plaid-1b

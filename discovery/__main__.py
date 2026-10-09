@@ -71,7 +71,7 @@ def cmd_apply_decision(args) -> int:
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
-    args.pr_body_out.write_text(body, encoding="utf-8")
+    args.summary_out.write_text(body, encoding="utf-8")
     return 0
 
 
@@ -95,7 +95,7 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--comments", type=Path, default=None, help="JSON array of issue comments")
     a.add_argument("--root", type=Path, default=REPO_ROOT)
     a.add_argument("--today", type=date.fromisoformat, default=None)
-    a.add_argument("--pr-body-out", type=Path, required=True)
+    a.add_argument("--summary-out", type=Path, required=True, help="where to write the comment posted on the issue")
     a.set_defaults(func=cmd_apply_decision)
     return parser
 

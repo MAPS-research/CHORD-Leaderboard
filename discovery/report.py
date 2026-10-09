@@ -24,14 +24,15 @@ DIGEST_BUDGET = 50000  # characters for all rows; notes shrink so every row fits
 
 
 def classify(c: Candidate) -> str | None:
-    """"issue" for a confirmed OWT candidate, "digest" for one a human should glance at, None to drop."""
+    """"issue" for a confirmed OWT candidate with an official repo, "digest" for one a human should glance at, None to drop."""
     if c.verdict is None:
         return "digest"  # judge failed: listed for a human
     if c.verdict.owt_trained.value == "no":
         return None
     if not (any(w.check in _PLAUSIBLE for w in c.weights) or c.verdict.official_checkpoints):
         return None
-    return "issue" if c.verdict.owt_trained.value == "yes" else "digest"
+    confirmed = c.verdict.owt_trained.value == "yes" and c.verdict.official_repo  # listing requires an official repo
+    return "issue" if confirmed else "digest"
 
 
 def _cell(text: str, limit: int) -> str:

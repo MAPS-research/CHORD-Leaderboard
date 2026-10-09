@@ -15,11 +15,12 @@ def _c(verdict=None, weights=None, **kw):
 
 
 def test_classify_rules():
-    assert classify(_c(Verdict(owt_trained=YES, unconditional=YES))) == "issue"
+    assert classify(_c(Verdict(owt_trained=YES, unconditional=YES, official_repo="https://github.com/a/b"))) == "issue"
+    assert classify(_c(Verdict(owt_trained=YES, unconditional=YES))) == "digest"  # no official repo, e.g. an HF-only upload
     assert classify(_c(Verdict(owt_trained=Judgement(value="no")))) is None
     assert classify(_c(Verdict(owt_trained=Judgement(value="unclear")), weights=[Weight(kind="gdrive", ref="u", check="unverifiable")])) == "digest"
     assert classify(_c(Verdict(owt_trained=YES), weights=[Weight(kind="hf", ref="a/b", check="missing")])) is None
-    assert classify(_c(Verdict(owt_trained=YES, official_checkpoints=[CheckpointRef(kind="hf", ref="a/b")]),
+    assert classify(_c(Verdict(owt_trained=YES, official_repo="https://github.com/a/b", official_checkpoints=[CheckpointRef(kind="hf", ref="a/b")]),
                        weights=[Weight(kind="hf", ref="a/b", check="gated")])) == "issue"
     assert classify(_c(None, judge_error="JudgeError: down")) == "digest"
 

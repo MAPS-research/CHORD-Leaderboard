@@ -1,4 +1,4 @@
-"""Turn an accept/reject label on a candidate issue into registry edits and a PR body."""
+"""Turn an accept/reject label on a candidate issue into registry edits and a summary for the issue."""
 
 import re
 from datetime import date
@@ -97,9 +97,9 @@ def apply(action: str, event: dict, comments: list[dict], root: Path, today: dat
             path.write_text(backup, encoding="utf-8")
             raise
         listed = "\n".join(f"- `{e.id}`: {e.checkpoint.kind} `{e.checkpoint.ref}`" for e in entries)
-        return (f"Closes #{number}\n\nAdds {len(entries)} entr{'y' if len(entries) == 1 else 'ies'} to `registry/models.yaml`:\n{listed}\n\n"
-                "Before merging:\n- [ ] check `id`, `name`, `family`, `params`, `train_data`, `tokenizer`\n"
-                "- [ ] keep `status: queued`; `sampler` is filled by the sampling sub-project")
+        return (f"Added {len(entries)} entr{'y' if len(entries) == 1 else 'ies'} to `registry/models.yaml` (status `queued`):\n{listed}\n\n"
+                "Check `name`, `family`, `group`, `params` and `paper.published` before the model is scored; "
+                "`sampler` is filled when it is sampled.")
     if action == "reject":
         path = reg / "rejected.yaml"
         entry = reject_entry(cand, number, today, comments)
@@ -110,5 +110,5 @@ def apply(action: str, event: dict, comments: list[dict], root: Path, today: dat
         except Exception:
             path.write_text(backup, encoding="utf-8")
             raise
-        return f"Closes #{number}\n\nRecords `{entry.key}` in `registry/rejected.yaml`.\n\nReason: {entry.reason}"
+        return f"Recorded `{entry.key}` in `registry/rejected.yaml`.\n\nReason: {entry.reason}"
     raise ValueError(f"Unknown action {action!r}; expected accept or reject.")

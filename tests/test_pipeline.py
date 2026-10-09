@@ -17,6 +17,12 @@ def _c(arxiv, title="A diffusion language model", sources=("arxiv-kw",), publish
     return Candidate(arxiv_id=arxiv, title=title, abstract="abs", sources=list(sources), published=published, **kw)
 
 
+def _yes(c, **kw):
+    """A verdict confirming OWT training, with an official repo unique to the candidate."""
+    repo = "https://github.com/o/" + c.key.replace(":", "-").replace("/", "-")
+    return c.model_copy(update={"verdict": Verdict(owt_trained=Judgement(value="yes"), official_repo=repo, **kw)})
+
+
 class FakeGitHub:
     def __init__(self, keys=frozenset(), fail=False):
         self.keys, self.fail, self.created = set(keys), fail, []
@@ -59,7 +65,7 @@ def stubs(monkeypatch):
 
     def fake_judge(llm, model, c, sleep):
         calls["judged"].append(c.arxiv_id)
-        return c.model_copy(update={"verdict": Verdict(owt_trained=Judgement(value="yes"))})
+        return _yes(c)
 
     monkeypatch.setattr(pipeline.judge, "judge", fake_judge)
     return calls
@@ -147,8 +153,8 @@ def test_same_model_found_as_paper_and_as_hf_only_is_reported_once(root, stubs, 
         Candidate(sources=["hf-search:owt"], weights=[Weight(kind="hf", ref="x/2609.00001")], published=date(2026, 10, 2))])
     monkeypatch.setattr(pipeline.enrich, "enrich", lambda http, c, n, sleep: c if not c.arxiv_id else c.model_copy(
         update={"weights": [Weight(kind="hf", ref=f"x/{c.arxiv_id}")]}))
-    monkeypatch.setattr(pipeline.judge, "judge", lambda llm, m, c, sleep: c.model_copy(update={"verdict": Verdict(
-        owt_trained=Judgement(value="yes"), official_checkpoints=[CheckpointRef(kind="hf", ref=c.weights[0].ref)])}))
+    monkeypatch.setattr(pipeline.judge, "judge", lambda llm, m, c, sleep: _yes(
+        c, official_checkpoints=[CheckpointRef(kind="hf", ref=c.weights[0].ref)]))
     summary, _ = run(CFG.model_copy(update={"max_judge_calls": 10}), _deps(FakeGitHub()), root=root, since=SINCE, dry_run=False, no_dedupe=False)
     assert summary.reported == ["arxiv:2609.00001", "arxiv:2609.00002"]  # the HF-only copy of 2609.00001 is dropped
 
@@ -192,7 +198,7 @@ def test_judge_calls_run_concurrently_and_keep_order(root, stubs, monkeypatch):
 
     def slow_judge(llm, model, c, sleep):
         _time.sleep(0.3)
-        return c.model_copy(update={"verdict": Verdict(owt_trained=Judgement(value="yes"))})
+        return _yes(c)
 
     monkeypatch.setattr(pipeline.judge, "judge", slow_judge)
     cfg = CFG.model_copy(update={"max_judge_calls": 10, "judge_workers": 4})
@@ -220,8 +226,9 @@ def test_judge_failures_are_not_remembered(root, stubs, monkeypatch):
 
 def test_unclear_candidates_go_into_one_digest_issue(root, stubs, monkeypatch):
     def judge_one_unclear(llm, model, c, sleep):
-        value = "yes" if c.arxiv_id == "2609.00001" else "unclear"
-        return c.model_copy(update={"verdict": Verdict(owt_trained=Judgement(value=value))})
+        if c.arxiv_id == "2609.00001":
+            return _yes(c)
+        return c.model_copy(update={"verdict": Verdict(owt_trained=Judgement(value="unclear"))})
 
     monkeypatch.setattr(pipeline.judge, "judge", judge_one_unclear)
     gh = FakeGitHub()

@@ -1,5 +1,8 @@
 name: apply-decision
 
+# An `accept` or `reject` label on a candidate issue is the review decision: the registry change is
+# committed straight to the default branch (the organization does not allow Actions to open PRs),
+# then the issue gets a comment saying what changed and is closed.
 on:
   issues:
     types: [labeled]
@@ -7,7 +10,10 @@ on:
 permissions:
   contents: write
   issues: write
-  pull-requests: write
+
+concurrency:
+  group: apply-decision
+  cancel-in-progress: false
 
 jobs:
   apply:
@@ -29,19 +35,27 @@ jobs:
         run: |
           gh api "repos/$REPO/issues/$NUMBER/comments" --paginate --jq '.[]' | jq -s . > comments.json
           if ! python -m discovery apply-decision --action "$ACTION" --event "$GITHUB_EVENT_PATH" \
-                 --comments comments.json --pr-body-out pr-body.md 2> error.txt; then
+                 --comments comments.json --summary-out summary.md 2> error.txt; then
             { echo "Could not apply \`$ACTION\`:"; echo; cat error.txt; } > comment.md
             gh issue comment "$NUMBER" --body-file comment.md
             exit 1
           fi
-      - name: Open PR
+      - name: Commit to the default branch and close the issue
         run: |
-          branch="decision/$NUMBER"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$branch"
           git add registry/
           git commit -m "registry: $ACTION candidate #$NUMBER"
-          git push --force origin "$branch"
-          gh pr create --base "$BASE" --head "$branch" --title "registry: $ACTION #$NUMBER" --body-file pr-body.md \
-            || gh pr edit "$branch" --body-file pr-body.md
+          pushed=0
+          for attempt in 1 2 3; do
+            if git pull --rebase origin "$BASE" && git push origin "HEAD:$BASE"; then pushed=1; break; fi
+            sleep 5
+          done
+          if [ "$pushed" != 1 ]; then
+            gh issue comment "$NUMBER" --body "Could not push the registry change for \`$ACTION\`; see the workflow log."
+            exit 1
+          fi
+          { cat summary.md; echo; echo "Committed in $(git rev-parse --short HEAD)."; } > comment.md
+          gh issue comment "$NUMBER" --body-file comment.md
+          if [ "$ACTION" = "accept" ]; then reason=completed; else reason="not planned"; fi
+          gh issue close "$NUMBER" --reason "$reason"

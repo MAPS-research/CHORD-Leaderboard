@@ -55,7 +55,7 @@ def test_apply_accept_writes_valid_yaml_with_todo_comments(root):
     text = (root / "registry" / "models.yaml").read_text()
     assert "# TODO(sampler): fill from paper" in text and "# TODO(review): family unknown" in text
     assert [m.id for m in load_models(root / "registry" / "models.yaml")] == ["proseco-owt"]
-    assert body.startswith("Closes #42")
+    assert body.startswith("Added 1 entry to `registry/models.yaml`") and "`proseco-owt`" in body and "Closes" not in body
 
 
 def test_apply_reject_uses_last_reason_comment(root):

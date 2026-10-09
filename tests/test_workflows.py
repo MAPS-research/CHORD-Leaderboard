@@ -26,10 +26,15 @@ def test_discover_schedule_and_permissions():
     assert wf["permissions"] == {"contents": "read", "issues": "write", "actions": "read"}
 
 
-def test_apply_decision_trigger_and_permissions():
+def test_apply_decision_commits_to_main_and_closes_the_issue():
     wf = _load("apply-decision.yml")
     assert wf[True] == {"issues": {"types": ["labeled"]}}
-    assert wf["permissions"] == {"contents": "write", "issues": "write", "pull-requests": "write"}
+    assert wf["permissions"] == {"contents": "write", "issues": "write"}  # the organization forbids Actions from opening PRs
+    assert wf["concurrency"] == {"group": "apply-decision", "cancel-in-progress": False}
+    scripts = "\n".join(_run_blocks(wf))
+    assert "gh pr create" not in scripts
+    assert 'git push origin "HEAD:$BASE"' in scripts
+    assert "gh issue close" in scripts and "--summary-out summary.md" in scripts
 
 
 def test_no_untrusted_expressions_inside_run_scripts():

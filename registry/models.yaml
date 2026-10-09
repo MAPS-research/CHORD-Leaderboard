@@ -41,7 +41,7 @@
 
 # --- Block / AR-diffusion hybrids ---
 - {id: bd3lm-owt-block-size4, name: BD3-LM (block size 4), paper: {arxiv: "2503.09573", venue: ICLR 2025, published: 2025-03-12}, github: "https://github.com/kuleshov-group/bd3lms",
-   checkpoint: {kind: hf, ref: kuleshov-group/bd3lm-owt-block_size4}, family: block-hybrid, params: 169.6M, train_data: owt, tokenizer: gpt2, sampler: {note: "T=5000, nucleus p=0.9, KV cache (paper Table 7, App. C.5)"}, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: hf, ref: kuleshov-group/bd3lm-owt-block_size4}, group: discrete, family: block-hybrid, params: 169.6M, train_data: owt, tokenizer: gpt2, sampler: {note: "T=5000, nucleus p=0.9, KV cache (paper Table 7, App. C.5)"}, status: scored, added: 2026-10-08, source: seed}
 - {id: eso-lm-b-alpha-0-25, name: "Eso-LM (B) (α = 0.25)", paper: {arxiv: "2506.01928", venue: ICML 2026, published: 2025-06-02}, github: "https://github.com/s-sahoo/Eso-LMs",
    checkpoint: {kind: hf, ref: sahoo-diffusion/Eso-LM-B-alpha-0_25}, family: block-hybrid, params: 169.6M, train_data: owt, tokenizer: gpt2, sampler: {note: "alpha_eval=0.0625, T=128, nucleus p=0.9 (paper Table 13; no single headline)"}, status: excluded, added: 2026-10-08, source: seed}
 - {id: e2d2-owt, name: E2D2, paper: {arxiv: "2510.22852", venue: NeurIPS 2025, published: 2025-10-26}, github: "https://github.com/kuleshov-group/e2d2",

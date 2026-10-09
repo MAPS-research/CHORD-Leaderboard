@@ -50,6 +50,7 @@ jobs:
           gh label create accept --color 0E8A16 --description "Add to the registry (opens a PR)" --force
           gh label create reject --color B60205 --description "Record as rejected (opens a PR)" --force
           gh label create candidate-digest --color C5DEF5 --description "Weekly list of unconfirmed candidates" --force
+          gh label create model-request --color D4C5F9 --description "Request to evaluate a generator" --force
           gh label create pipeline-failure --color 5319E7 --description "A discovery source failed in consecutive runs" --force
       - name: Fetch previous run summary
         run: |

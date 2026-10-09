@@ -1,0 +1,63 @@
+name: Model evaluation request
+description: Ask for a generator to be evaluated on the CHORD Leaderboard, or to be evaluated sooner.
+title: "[request] "
+labels: [model-request]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The leaderboard lists generators trained on OpenWebText that have public weights and an official code repository.
+        Each model is evaluated at the setting its paper reports as best. Generators already under "Pending Evaluation" can be requested too.
+  - type: input
+    id: model
+    attributes:
+      label: Model name
+      placeholder: e.g. BD3-LM
+    validations:
+      required: true
+  - type: input
+    id: paper
+    attributes:
+      label: Paper
+      description: arXiv or other link.
+      placeholder: https://arxiv.org/abs/...
+    validations:
+      required: false
+  - type: input
+    id: code
+    attributes:
+      label: Official code repository
+      placeholder: https://github.com/...
+    validations:
+      required: true
+  - type: input
+    id: checkpoint
+    attributes:
+      label: Checkpoint
+      description: The checkpoint the paper reports as best (Hugging Face or other link).
+      placeholder: https://huggingface.co/...
+    validations:
+      required: true
+  - type: dropdown
+    id: owt
+    attributes:
+      label: Trained on OpenWebText?
+      options:
+        - "Yes"
+        - "No"
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: sampling
+    attributes:
+      label: Sampling setting
+      description: The setting the paper uses for its best result (sampler, number of steps, temperature or nucleus, sequence length).
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+    validations:
+      required: false

@@ -21,11 +21,11 @@ Judge ONLY from the ABSTRACT and README given by the user. Rules:
 - If the text does not settle a question, answer "unclear" with no quotes. Never rely on outside knowledge about the method or model family.
 - owt_trained: "yes" if the text states the released or evaluated model was trained on OpenWebText/OWT; "no" if it states training only on other corpora.
 - unconditional: "yes" if the text reports unconditional samples or the generative perplexity of samples generated from scratch, or the README shows a sampling command without a prompt; "no" if the model only supports conditional tasks.
-- official_checkpoints: only checkpoints the authors present as their own release for an OWT-trained model. Models in a Hugging Face collection that the README links (they appear in WEIGHT LINKS FOUND) count as presented by the authors; support them with the README sentence that links the collection or describes those checkpoints. Exclude datasets, checkpoints the work starts from or compares against, and checkpoints trained on other corpora.
+- official_checkpoints: the checkpoint the authors present as their best OpenWebText result for unconditional generation, one per model size; not every ablation or hyperparameter variant. Models in a Hugging Face collection that the README links (they appear in WEIGHT LINKS FOUND) count as presented by the authors; support them with the README sentence that links the collection or describes those checkpoints. Exclude datasets, checkpoints the work starts from or compares against, and checkpoints trained on other corpora.
 - official_repo: the authors' own repository for this paper, chosen from REPOSITORIES; null if none is clearly theirs.
 - generation_type: how the model generates text, as one of three types: "ar" for autoregressive (left-to-right next-token) models; "discrete" for diffusion or flow models over discrete tokens (masked, absorbing, uniform, block or hybrid discrete diffusion, discrete flow matching); "continuous" for diffusion or flow models in a continuous space (token embeddings, the simplex, or a latent space). Quote the text that states it; answer "unclear" if the text does not say.
 - family_guess: one of ar, masked-dlm, uniform-dlm, hybrid-dlm, block-hybrid, continuous, flow, distilled; null if unclear.
-- notes: at most two sentences for the human reviewer, e.g. which checkpoints are OWT-trained or which sampler settings the paper uses.
+- notes: at most two sentences for the human reviewer: which variant is the paper's best OWT result and the sampling setting (steps, temperature or nucleus, length) the paper uses for it.
 Reply only with the JSON object required by the output schema."""
 
 _EVIDENCE = {

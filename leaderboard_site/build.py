@@ -65,8 +65,29 @@ def load_results(directory: Path) -> dict[str, Result]:
     return out
 
 
-def _paper_link(e: RegistryEntry) -> str:
+FAMILY_GROUP = {"ar": "ar", "continuous": "continuous", "flow": "continuous"}  # every other family is discrete diffusion/flow
+
+
+def _paper_link(e: RegistryEntry) -> str | None:
+    if not e.paper:
+        return None
     return f"https://arxiv.org/abs/{e.paper.arxiv}" if e.paper.arxiv else e.paper.url
+
+
+def _group(e: RegistryEntry) -> str:
+    return e.group or FAMILY_GROUP.get(e.family, "discrete")
+
+
+def _pending(models: list[RegistryEntry]) -> list[dict]:
+    """Registry entries found and accepted but not scored yet (sampler-only rows are not models of their own)."""
+    rows = [{
+        "id": e.id, "name": e.name, "group": _group(e), "params": e.params,
+        "released": e.paper.published.isoformat() if e.paper and e.paper.published else None,
+        "paper": _paper_link(e), "code": e.github,
+    } for e in models if e.status == "queued" and e.checkpoint.kind != "sampler"]
+    rows.sort(key=lambda r: [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", r["name"].lower())])  # "block size 4" before "16"
+    rows.sort(key=lambda r: r["released"] or "", reverse=True)  # newest first, unknown dates last
+    return rows
 
 
 def build(models: list[RegistryEntry], results: dict[str, Result]) -> dict:
@@ -89,7 +110,8 @@ def build(models: list[RegistryEntry], results: dict[str, Result]) -> dict:
     last = max([r.scored_on for r in results.values()] + [e.added for e in scored.values()])
     return {"last_modified": last.isoformat(),
             "human": {"name": HUMAN_NAME, "mean": round(human.mean, 4), "std": round(human.std, 4)},
-            "generators": generators}
+            "generators": generators,
+            "pending": _pending(models)}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -105,7 +127,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(data, indent=2) + "\n")
-    print(f"wrote {args.out}: {len(data['generators'])} generators, last modified {data['last_modified']}")
+    print(f"wrote {args.out}: {len(data['generators'])} generators, {len(data['pending'])} pending, last modified {data['last_modified']}")
     return 0
 
 

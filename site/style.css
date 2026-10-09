@@ -34,6 +34,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--link); outline-
 .affiliations { font: 400 1.05rem/1.4 var(--font-title); color: var(--title); }
 .author-notes { font-size: 0.85em; color: var(--muted); }
 td.status { text-align: center; color: var(--muted); padding-block: 28px; }
+.leaderboard.pending { padding-top: 0; }
+.pending-note { color: var(--muted); font-size: 0.9em; text-align: center; margin: 0 0 16px; }
 .buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 6px; }
 .btn { display: inline-flex; align-items: center; gap: 8px; background: var(--button); color: #ffffff; border-radius: 999px; padding: 8px 20px; font: 400 1rem/1.5 var(--font-body); }
 .btn:hover { color: #ffffff; text-decoration: none; background: #2b2b2b; }

@@ -17,7 +17,7 @@ def test_models_registry_is_consistent():
     for m in models:
         if m.checkpoint.kind == "sampler":
             assert m.checkpoint.ref in ids, f"{m.id}: sampler base {m.checkpoint.ref} is not a registry id"
-    assert len(models) >= 50
+    assert len(models) >= 30
 
 
 def test_rejected_registry_loads_with_unique_keys():

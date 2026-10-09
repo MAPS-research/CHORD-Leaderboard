@@ -74,5 +74,24 @@
     <br>Held-out human (packed): held-out human text from the same source, scored like a generator.
   </div>
 </section>
+
+<section class="leaderboard pending" aria-labelledby="pending-title">
+  <h2 id="pending-title">Pending Evaluation</h2>
+  <p class="pending-note">Generators found by the weekly search and accepted into the registry, not yet scored. They join the leaderboard once they are evaluated.<br>
+    Want a generator evaluated, or evaluated sooner? <a href="https://github.com/MAPS-research/CHORD-Leaderboard/issues/new?template=model-request.yml">Open an issue</a>.</p>
+  <div class="table-wrap">
+    <table aria-label="Pending evaluation">
+      <thead>
+        <tr>
+          <th>Generator</th>
+          <th class="center col-params">Params</th>
+          <th class="col-date">Released</th>
+          <th class="col-links">Links</th>
+        </tr>
+      </thead>
+      <tbody id="pending-rows"><tr><td class="status" colspan="4">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</section>
 </body>
 </html>

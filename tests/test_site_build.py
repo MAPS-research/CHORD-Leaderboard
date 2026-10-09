@@ -8,9 +8,10 @@ from discovery.models import Checkpoint, Paper, RegistryEntry
 from leaderboard_site.build import BuildError, build, load_results, parse_params
 
 
-def _entry(id_, name, group="discrete", status="scored", paper=None, added=date(2026, 10, 8)):
+def _entry(id_, name, group="discrete", status="scored", paper=None, added=date(2026, 10, 8), family=None):
+    family = family or ("flow" if id_.startswith("elf") else "masked-dlm")
     return RegistryEntry(id=id_, name=name, github=f"https://github.com/o/{id_}", checkpoint=Checkpoint(kind="hf", ref=f"o/{id_}"),
-                         family="masked-dlm", group=group, params="170M", train_data="owt", status=status, added=added, source="seed",
+                         family=family, group=group, params="170M", train_data="owt", status=status, added=added, source="seed",
                          paper=paper or Paper(arxiv="2406.07524", published=date(2024, 6, 11)))
 
 
@@ -88,3 +89,32 @@ def test_missing_human_reference_fails(results):
     (results / "human-heldout.json").unlink()
     with pytest.raises(BuildError, match="human-heldout"):
         build(MODELS, load_results(results))
+
+
+def test_queued_entries_are_listed_as_pending(results):
+    pending_models = MODELS + [
+        _entry("elf-b-owt", "ELF-B", group=None, status="queued", paper=Paper(arxiv="2605.10938", published=date(2026, 5, 11))),
+        RegistryEntry(id="gpt2-xl", name="GPT-2 XL", github="https://github.com/openai/gpt-2", checkpoint=Checkpoint(kind="hf", ref="gpt2-xl"),
+                      family="ar", train_data="webtext", status="queued", added=date(2026, 10, 8), source="seed"),
+        RegistryEntry(id="remdm", name="ReMDM", github="https://github.com/k/remdm", checkpoint=Checkpoint(kind="sampler", ref="mdlm-owt"),
+                      family="masked-dlm", train_data="owt", status="queued", added=date(2026, 10, 8), source="seed"),
+    ]
+    pending = build(pending_models, load_results(results))["pending"]
+    assert [p["id"] for p in pending] == ["elf-b-owt", "sedd-medium", "gpt2-xl"]  # newest first, unknown dates last; samplers skipped
+    elf, sedd, gpt2 = pending
+    assert elf == {"id": "elf-b-owt", "name": "ELF-B", "group": "continuous", "params": "170M",
+                   "released": "2026-05-11", "paper": "https://arxiv.org/abs/2605.10938", "code": "https://github.com/o/elf-b-owt"}
+    assert sedd["group"] == "discrete"            # explicit group wins
+    assert gpt2["group"] == "ar" and gpt2["released"] is None and gpt2["paper"] is None and gpt2["params"] is None
+
+
+def test_pending_entries_do_not_affect_last_modified(results):
+    later = MODELS + [_entry("new", "New", status="queued", added=date(2027, 1, 1))]
+    assert build(later, load_results(results))["last_modified"] == "2026-10-09"
+
+
+def test_pending_names_sort_numbers_by_value(results):
+    same_day = Paper(arxiv="2503.09573", published=date(2025, 3, 12))
+    variants = [_entry(f"bd3lm-{b}", f"BD3-LM (block size {b})", status="queued", paper=same_day) for b in (16, 4, 8)]
+    names = [p["name"] for p in build(MODELS[:2] + variants, load_results(results))["pending"]]
+    assert names == ["BD3-LM (block size 4)", "BD3-LM (block size 8)", "BD3-LM (block size 16)"]

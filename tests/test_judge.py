@@ -136,3 +136,10 @@ def test_schema_asks_for_one_of_three_generation_types():
     gt = VERDICT_SCHEMA["properties"]["generation_type"]
     assert gt["properties"]["value"]["enum"] == ["ar", "discrete", "continuous", "unclear"]
     assert "generation_type" in VERDICT_SCHEMA["required"]
+
+
+def test_prompt_asks_for_the_best_checkpoint_only_and_its_sampling_setting():
+    from discovery.judge import SYSTEM_PROMPT
+    assert "best OpenWebText result" in SYSTEM_PROMPT and "one per model size" in SYSTEM_PROMPT
+    assert "not every ablation or hyperparameter variant" in SYSTEM_PROMPT
+    assert "sampling setting" in SYSTEM_PROMPT

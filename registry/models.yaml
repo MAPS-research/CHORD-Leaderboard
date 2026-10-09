@@ -129,3 +129,136 @@
    checkpoint: {kind: sampler, ref: mdlm-owt}, family: masked-dlm, train_data: owt, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}   # also uses ar-owt
 - {id: psi-samplers, name: Psi-samplers / Duo++, paper: {arxiv: null, venue: ICLR 2026}, github: "https://github.com/s-sahoo/duo",
    checkpoint: {kind: sampler, ref: duo2-owt}, family: uniform-dlm, train_data: owt, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}
+# --- Accepted from discovery issues #1 and #2 (2026-10-09) ---
+- id: mdlm-mmd-owt
+  name: MDLM-MMD
+  paper:
+    arxiv: '2610.06648'
+    title: Representation-Space MMD for Diffusion Language Models
+    venue: null
+    published: '2026-10-05'
+    url: null
+  github: https://github.com/yandex-research/dlm-mmd
+  checkpoint:
+    kind: hf
+    ref: yresearch/MDLM-MMD-OWT
+  family: masked-dlm
+  group: discrete
+  params: 170M
+  train_data: owt
+  tokenizer: null
+  in_paper: false
+  status: queued
+  sampler: null  # TODO(sampler): fill from paper
+  added: '2026-10-09'
+  source: discovery#1
+- id: elf-mmd-owt
+  name: ELF-MMD
+  paper:
+    arxiv: '2610.06648'
+    title: Representation-Space MMD for Diffusion Language Models
+    venue: null
+    published: '2026-10-05'
+    url: null
+  github: https://github.com/yandex-research/dlm-mmd
+  checkpoint:
+    kind: hf
+    ref: yresearch/ELF-MMD-OWT  # variants: gpt2/elf-mmd, gpt2/elf-mmd-ird, t5/elf-mmd, t5/elf-mmd-ird
+  family: flow
+  group: continuous
+  params: null
+  train_data: owt
+  tokenizer: null
+  in_paper: false
+  status: queued
+  sampler: null  # TODO(sampler): fill from paper
+  added: '2026-10-09'
+  source: discovery#1
+- id: elf-b-t5gemma2
+  name: ELF-B-T5Gemma2
+  paper:
+    arxiv: '2610.01016'
+    title: Scaling and Distilling Text Embeddings for Better Diffusibility
+    venue: null
+    published: '2026-10-01'
+    url: null
+  github: https://github.com/la0ka1/diffusing-scaled-text-embeddings
+  checkpoint:
+    kind: hf
+    ref: la0ka1/ELF-B-T5Gemma2
+  family: flow
+  group: continuous
+  params: null
+  train_data: owt
+  tokenizer: null
+  in_paper: false
+  status: queued
+  sampler: null  # TODO(sampler): fill from paper
+  added: '2026-10-09'
+  source: discovery#2
+- id: elf-b-t5gemma2-distilled
+  name: ELF-B-T5Gemma2-distilled
+  paper:
+    arxiv: '2610.01016'
+    title: Scaling and Distilling Text Embeddings for Better Diffusibility
+    venue: null
+    published: '2026-10-01'
+    url: null
+  github: https://github.com/la0ka1/diffusing-scaled-text-embeddings
+  checkpoint:
+    kind: hf
+    ref: la0ka1/ELF-B-T5Gemma2distilled
+  family: distilled
+  group: continuous
+  params: null
+  train_data: owt
+  tokenizer: null
+  in_paper: false
+  status: queued
+  sampler: null  # TODO(sampler): fill from paper
+  added: '2026-10-09'
+  source: discovery#2
+- id: elf-m-t5gemma2
+  name: ELF-M-T5Gemma2
+  paper:
+    arxiv: '2610.01016'
+    title: Scaling and Distilling Text Embeddings for Better Diffusibility
+    venue: null
+    published: '2026-10-01'
+    url: null
+  github: https://github.com/la0ka1/diffusing-scaled-text-embeddings
+  checkpoint:
+    kind: hf
+    ref: la0ka1/ELF-M-T5Gemma2
+  family: flow
+  group: continuous
+  params: null
+  train_data: owt
+  tokenizer: null
+  in_paper: false
+  status: queued
+  sampler: null  # TODO(sampler): fill from paper
+  added: '2026-10-09'
+  source: discovery#2
+- id: elf-m-t5gemma2-distilled
+  name: ELF-M-T5Gemma2-distilled
+  paper:
+    arxiv: '2610.01016'
+    title: Scaling and Distilling Text Embeddings for Better Diffusibility
+    venue: null
+    published: '2026-10-01'
+    url: null
+  github: https://github.com/la0ka1/diffusing-scaled-text-embeddings
+  checkpoint:
+    kind: hf
+    ref: la0ka1/ELF-M-T5Gemma2distilled
+  family: distilled
+  group: continuous
+  params: null
+  train_data: owt
+  tokenizer: null
+  in_paper: false
+  status: queued
+  sampler: null  # TODO(sampler): fill from paper
+  added: '2026-10-09'
+  source: discovery#2

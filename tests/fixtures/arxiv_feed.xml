@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <entry>
+    <id>http://arxiv.org/abs/2602.11590v1</id>
+    <published>2026-02-12T18:00:00Z</published>
+    <title>Self-Correcting Masked
+      Diffusion</title>
+    <summary>  We train on OpenWebText
+      and release checkpoints.  </summary>
+    <arxiv:comment>Code: https://github.com/kuleshov-group/proseco</arxiv:comment>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2601.00002v3</id>
+    <published>2026-01-02T10:00:00Z</published>
+    <title>Older Paper</title>
+    <summary>Discrete diffusion.</summary>
+  </entry>
+</feed>

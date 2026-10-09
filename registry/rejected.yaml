@@ -1,0 +1,15 @@
+# Rejected candidates. key: arxiv:<id> | hf:<repo> | github:<owner/repo>.
+# Seeded 2026-10-08 from the discovery spec, Appendix B. Items with no stable key
+# (Loopholing, MDM-Prime-v2, MDLM-MMD / ELF-MMD, unofficial ELF mirrors) are judged again if they resurface.
+- {key: "github:google-deepmind/md4", name: MD4 / GenMD4, reason: weights not released (google-deepmind/md4 issue 2), decided: 2026-10-08, source: seed}
+- {key: "arxiv:2510.22510", name: CANDI, reason: no OWT checkpoint released, decided: 2026-10-08, source: seed}
+- {key: "arxiv:2510.03206", name: CCDD, reason: no official repo or checkpoint, decided: 2026-10-08, source: seed}
+- {key: "arxiv:2605.18530", name: RePlaid, reason: project page links no code or weights, decided: 2026-10-08, source: seed}
+- {key: "arxiv:2502.11564", name: RDLM, reason: trained on Text8 and LM1B only, decided: 2026-10-08, source: seed}
+- {key: "github:kuleshov-group/discrete-diffusion-guidance", name: UDLM, reason: LM1B only, decided: 2026-10-08, source: seed}
+- {key: "hf:chen-hao-chao/ermine-owt", name: Ermine, reason: public weights but no repo or paper (re-propose once a paper appears), decided: 2026-10-08, source: seed}
+- {key: "hf:dhruveshpatel/ilm-owt", name: ILM-OWT, reason: checkpoint cannot be tied to any result in the paper, decided: 2026-10-08, source: seed}
+- {key: "hf:hazyresearch/ncm-neurips-owt", name: NCM, reason: no model card or repo, decided: 2026-10-08, source: seed}
+- {key: "hf:dhruveshpatel/flexmdm-owt", name: FlexMDM, reason: empty HF repo, decided: 2026-10-08, source: seed}
+- {key: "arxiv:2510.22926", name: SDDLM, reason: repo is a stub, decided: 2026-10-08, source: seed}
+- {key: "hf:eer6/xdlm-owt", name: xDLM (third-party), reason: unofficial adaptation, decided: 2026-10-08, source: seed}

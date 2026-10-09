@@ -1,0 +1,6 @@
+# Design specs and implementation plans (local only)
+docs/superpowers/
+__pycache__/
+*.egg-info/
+backtest.jsonl
+last-run.json

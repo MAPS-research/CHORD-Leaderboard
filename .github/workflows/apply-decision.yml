@@ -1,0 +1,47 @@
+name: apply-decision
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  apply:
+    if: (github.event.label.name == 'accept' || github.event.label.name == 'reject') && contains(github.event.issue.labels.*.name, 'candidate')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ACTION: ${{ github.event.label.name }}
+      NUMBER: ${{ github.event.issue.number }}
+      REPO: ${{ github.repository }}
+      BASE: ${{ github.event.repository.default_branch }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - name: Apply decision
+        run: |
+          gh api "repos/$REPO/issues/$NUMBER/comments" --paginate --jq '.[]' | jq -s . > comments.json
+          if ! python -m discovery apply-decision --action "$ACTION" --event "$GITHUB_EVENT_PATH" \
+                 --comments comments.json --pr-body-out pr-body.md 2> error.txt; then
+            { echo "Could not apply \`$ACTION\`:"; echo; cat error.txt; } > comment.md
+            gh issue comment "$NUMBER" --body-file comment.md
+            exit 1
+          fi
+      - name: Open PR
+        run: |
+          branch="decision/$NUMBER"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add registry/
+          git commit -m "registry: $ACTION candidate #$NUMBER"
+          git push --force origin "$branch"
+          gh pr create --base "$BASE" --head "$branch" --title "registry: $ACTION #$NUMBER" --body-file pr-body.md \
+            || gh pr edit "$branch" --body-file pr-body.md

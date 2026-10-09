@@ -27,7 +27,7 @@
 - {id: duo2-owt, name: Duo++ (Ψ-samplers), paper: {arxiv: "2602.21185", venue: ICLR 2026, published: 2026-02-24}, github: "https://github.com/s-sahoo/duo",
    checkpoint: {kind: hf, ref: jdeschena/duo2-owt, path: duo/61-1000000.safetensors}, family: uniform-dlm, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint duo/61-1000000.safetensors (Duo++); Psi-sampler, rescale eta=0.05, nucleus p=0.9, fp64; NFE not fixed by the paper (1024 or 4096)"}, status: queued, added: 2026-10-08, source: seed}   # holds duo/ and mdlm/ 1M-step checkpoints
 - {id: gidd-base-p-unif-0-2, name: GIDD+ base (p_u = 0.2), paper: {arxiv: "2503.04482", published: 2025-03-06}, github: "https://github.com/dvruette/gidd",
-   checkpoint: {kind: hf, ref: dvruette/gidd-base-p_unif-0.2}, family: hybrid-dlm, params: 424.7M, train_data: owt, tokenizer: gpt2, sampler: {note: "128 denoising steps, length 512 (trained at 512) (README)"}, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: hf, ref: dvruette/gidd-base-p_unif-0.2}, group: discrete, family: hybrid-dlm, params: 424.5M, train_data: owt, tokenizer: gpt2, sampler: {note: "128 denoising steps, length 512 (trained at 512) (README)"}, status: scored, added: 2026-10-08, source: seed}
 - {id: mdm-prime, name: MDM-Prime, paper: {arxiv: "2505.18495", venue: NeurIPS 2025, published: 2025-05-24}, github: "https://github.com/chen-hao-chao/mdm-prime",
    checkpoint: {kind: hf, ref: chen-hao-chao/mdm-prime}, family: masked-dlm, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint text/owt/results_prime_l2_owt (judgment: original l=6 headline retracted by errata); 512 steps, fp64, nucleus p=0.95"}, status: excluded, added: 2026-10-08, source: seed}   # OWT weights under text/owt/
 - {id: pgm, name: PGM, paper: {arxiv: "2505.18883", published: 2025-05-24}, github: "https://github.com/jdeschena/pgm",
@@ -71,7 +71,7 @@
 - {id: ssdlm, name: SSD-LM, paper: {arxiv: "2210.17432", venue: ACL 2023, published: 2022-10-31}, github: "https://github.com/xhan77/ssd-lm",
    checkpoint: {kind: hf, ref: xhan77/ssdlm}, family: continuous, train_data: owt, status: queued, added: 2026-10-08, source: seed}   # semi-AR, 25-token blocks
 - {id: plaid-1b, name: PLAID 1B, paper: {arxiv: "2305.18619", venue: NeurIPS 2023, published: 2023-05-30}, github: "https://github.com/igul222/plaid",
-   checkpoint: {kind: github-release, ref: "https://github.com/igul222/plaid/releases/tag/v1.0.0"}, family: continuous, train_data: owt2, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: github-release, ref: "https://github.com/igul222/plaid/releases/tag/v1.0.0"}, params: 1.3B, group: continuous, family: continuous, train_data: owt2, status: scored, added: 2026-10-08, source: seed}
 
 # --- Distilled / few-step ---
 - {id: sdtt, name: SDTT, paper: {arxiv: "2410.21035", published: 2024-10-28}, github: "https://github.com/jdeschena/sdtt",
@@ -124,11 +124,11 @@
     ref: la0ka1/ELF-M-T5Gemma2distilled
   family: distilled
   group: continuous
-  params: null
+  params: 495M
   train_data: owt
   tokenizer: null
   in_paper: false
-  status: queued
+  status: scored
   sampler:
     note: "SDE sampler, --sc 3 --nfe 512, churn 1.5, noise scale 2.0 (README)"
   added: '2026-10-09'

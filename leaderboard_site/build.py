@@ -13,7 +13,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 
-from discovery.models import RegistryEntry
+from discovery.models import Checkpoint, RegistryEntry
 from discovery.registry import REPO_ROOT, load_models
 
 HUMAN_ID = "human-heldout"
@@ -74,6 +74,23 @@ def _paper_link(e: RegistryEntry) -> str | None:
     return f"https://arxiv.org/abs/{e.paper.arxiv}" if e.paper.arxiv else e.paper.url
 
 
+_HOST = {"gdrive": "Google Drive", "dropbox": "Dropbox", "zenodo": "Zenodo", "box": "Box"}
+
+
+def checkpoint_link(c: Checkpoint) -> dict:
+    """Label and URL of the evaluated checkpoint, shown in the page's Checkpoints section."""
+    if c.kind == "hf":
+        url = f"https://huggingface.co/{c.ref}" + (f"/blob/main/{c.path}" if c.path else "")
+        return {"label": c.ref + (f"/{c.path}" if c.path else ""), "url": url}
+    if c.kind == "github-release":
+        return {"label": f"GitHub release {c.ref.rstrip('/').rsplit('/', 1)[-1]}", "url": c.ref}
+    host = _HOST.get(c.kind, c.kind)
+    on_readme = "github.com" in c.ref
+    label = f"{c.path} ({host}{', linked from the README' if on_readme else ''})" if c.path else (
+        f"{host}, linked from the README" if on_readme else host)
+    return {"label": label, "url": c.ref}
+
+
 def _group(e: RegistryEntry) -> str:
     return e.group or FAMILY_GROUP.get(e.family, "discrete")
 
@@ -83,7 +100,7 @@ def _pending(models: list[RegistryEntry]) -> list[dict]:
     rows = [{
         "id": e.id, "name": e.name, "group": _group(e), "params": e.params,
         "released": e.paper.published.isoformat() if e.paper and e.paper.published else None,
-        "paper": _paper_link(e), "code": e.github,
+        "paper": _paper_link(e), "code": e.github, "checkpoint": checkpoint_link(e.checkpoint),
     } for e in models if e.status == "queued" and e.checkpoint.kind != "sampler"]
     rows.sort(key=lambda r: [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", r["name"].lower())])  # "block size 4" before "16"
     rows.sort(key=lambda r: r["released"] or "", reverse=True)  # newest first, unknown dates last
@@ -104,6 +121,7 @@ def build(models: list[RegistryEntry], results: dict[str, Result]) -> dict:
         "id": e.id, "name": e.name, "group": e.group, "params": e.params, "params_value": parse_params(e.params),
         "released": e.paper.published.isoformat(), "paper": _paper_link(e), "code": e.github,
         "mean": round(results[e.id].mean, 4), "std": round(results[e.id].std, 4),
+        "checkpoint": checkpoint_link(e.checkpoint),
     } for e in scored.values()]
     generators.sort(key=lambda g: g["mean"])
     human = results[HUMAN_ID]

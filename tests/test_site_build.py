@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from discovery.models import Checkpoint, Paper, RegistryEntry
-from leaderboard_site.build import BuildError, build, load_results, parse_params
+from leaderboard_site.build import BuildError, build, checkpoint_link, load_results, parse_params
 
 
 def _entry(id_, name, group="discrete", status="scored", paper=None, added=date(2026, 10, 8), family=None):
@@ -50,7 +50,7 @@ def test_build_joins_scored_entries_with_results(results):
     gpt2 = data["generators"][0]
     assert gpt2 == {"id": "gpt2-large", "name": "GPT-2-large", "group": "ar", "params": "170M", "params_value": 170_000_000,
                     "released": "2019-02-14", "paper": "https://cdn.openai.com/gpt2.pdf", "code": "https://github.com/o/gpt2-large",
-                    "mean": 20.0, "std": 1.4142}
+                    "mean": 20.0, "std": 1.4142, "checkpoint": {"label": "o/gpt2-large", "url": "https://huggingface.co/o/gpt2-large"}}
     assert data["generators"][1]["paper"] == "https://arxiv.org/abs/2406.07524"
     assert data["human"] == {"name": "Held-out human (packed)", "mean": 0.15, "std": 0.0707}
     assert data["last_modified"] == "2026-10-09"
@@ -103,7 +103,8 @@ def test_queued_entries_are_listed_as_pending(results):
     assert [p["id"] for p in pending] == ["elf-b-owt", "sedd-medium", "gpt2-xl"]  # newest first, unknown dates last; samplers skipped
     elf, sedd, gpt2 = pending
     assert elf == {"id": "elf-b-owt", "name": "ELF-B", "group": "continuous", "params": "170M",
-                   "released": "2026-05-11", "paper": "https://arxiv.org/abs/2605.10938", "code": "https://github.com/o/elf-b-owt"}
+                   "released": "2026-05-11", "paper": "https://arxiv.org/abs/2605.10938", "code": "https://github.com/o/elf-b-owt",
+                   "checkpoint": {"label": "o/elf-b-owt", "url": "https://huggingface.co/o/elf-b-owt"}}
     assert sedd["group"] == "discrete"            # explicit group wins
     assert gpt2["group"] == "ar" and gpt2["released"] is None and gpt2["paper"] is None and gpt2["params"] is None
 
@@ -118,3 +119,26 @@ def test_pending_names_sort_numbers_by_value(results):
     variants = [_entry(f"bd3lm-{b}", f"BD3-LM (block size {b})", status="queued", paper=same_day) for b in (16, 4, 8)]
     names = [p["name"] for p in build(MODELS[:2] + variants, load_results(results))["pending"]]
     assert names == ["BD3-LM (block size 4)", "BD3-LM (block size 8)", "BD3-LM (block size 16)"]
+
+
+def test_checkpoint_link_points_to_the_hf_repo():
+    assert checkpoint_link(Checkpoint(kind="hf", ref="openai-community/gpt2")) == {
+        "label": "openai-community/gpt2", "url": "https://huggingface.co/openai-community/gpt2"}
+
+
+def test_checkpoint_link_points_to_a_file_inside_an_hf_repo():
+    assert checkpoint_link(Checkpoint(kind="hf", ref="jdeschena/duo2-owt", path="duo/61-1000000.safetensors")) == {
+        "label": "jdeschena/duo2-owt/duo/61-1000000.safetensors",
+        "url": "https://huggingface.co/jdeschena/duo2-owt/blob/main/duo/61-1000000.safetensors"}
+
+
+def test_checkpoint_link_for_files_hosted_elsewhere_uses_the_ref_url():
+    release = checkpoint_link(Checkpoint(kind="github-release", ref="https://github.com/igul222/plaid/releases/tag/v1.0.0"))
+    assert release == {"label": "GitHub release v1.0.0", "url": "https://github.com/igul222/plaid/releases/tag/v1.0.0"}
+    dropbox = checkpoint_link(Checkpoint(kind="dropbox", ref="https://github.com/LituRout/ADLM", path="adlm-large.ckpt"))
+    assert dropbox == {"label": "adlm-large.ckpt (Dropbox, linked from the README)", "url": "https://github.com/LituRout/ADLM"}
+
+
+def test_scored_generators_carry_their_checkpoint_link(results):
+    gens = build(MODELS, load_results(results))["generators"]
+    assert gens[0]["checkpoint"] == {"label": "o/gpt2-large", "url": "https://huggingface.co/o/gpt2-large"}

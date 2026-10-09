@@ -138,6 +138,7 @@ class Paper(_Frozen):
 class Checkpoint(_Frozen):
     kind: CheckpointKind
     ref: str
+    path: str | None = None  # file or folder inside ref when the repo holds several checkpoints
 
 
 class RegistryEntry(_Frozen):

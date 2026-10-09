@@ -86,3 +86,4 @@ tr.human td { font-weight: 600; }
   .meta { display: block; }
   th, td { padding: 10px 8px; }
 }
+.ckpt { overflow-wrap: anywhere; }

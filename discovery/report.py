@@ -4,6 +4,7 @@ import re
 
 from pydantic import ValidationError
 
+from discovery.keys import github_key
 from discovery.models import Candidate, Judgement
 
 MARKER_RE = re.compile(r"<!-- cand: (\S+) -->")
@@ -23,7 +24,20 @@ DIGEST_NOTE_MAX = 300
 DIGEST_BUDGET = 50000  # characters for all rows; notes shrink so every row fits
 
 
-def classify(c: Candidate) -> str | None:
+def _stars(c: Candidate) -> int | None:
+    official = github_key(c.verdict.official_repo) if c.verdict and c.verdict.official_repo else None
+    if official in c.repo_stars:
+        return c.repo_stars[official]
+    return max(c.repo_stars.values()) if c.repo_stars else None
+
+
+def _popular(c: Candidate, min_stars: int, min_upvotes: int) -> bool:
+    if not (min_stars or min_upvotes):
+        return True
+    return bool((min_stars and (_stars(c) or 0) >= min_stars) or (min_upvotes and (c.paper_upvotes or 0) >= min_upvotes))
+
+
+def classify(c: Candidate, min_stars: int = 0, min_upvotes: int = 0) -> str | None:
     """"issue" for a confirmed OWT candidate with an official repo, "digest" for one a human should glance at, None to drop."""
     if c.verdict is None:
         return "digest"  # judge failed: listed for a human
@@ -32,7 +46,7 @@ def classify(c: Candidate) -> str | None:
     if not (any(w.check in _PLAUSIBLE for w in c.weights) or c.verdict.official_checkpoints):
         return None
     confirmed = c.verdict.owt_trained.value == "yes" and c.verdict.official_repo  # listing requires an official repo
-    return "issue" if confirmed else "digest"
+    return "issue" if confirmed and _popular(c, min_stars, min_upvotes) else "digest"
 
 
 def _cell(text: str, limit: int) -> str:
@@ -50,15 +64,17 @@ def render_digest(cands: list[Candidate], run_date) -> tuple[str, str, list[str]
             link = f"[{ref}](https://huggingface.co/{ref})"
         ok = sum(w.check == "ok" for w in c.weights)
         note = c.judge_error if c.verdict is None else c.verdict.notes
-        rows.append(f"| {link} | {ok}/{len(c.weights)} | {_cell(note or '-', note_max)} |")
+        stars = _stars(c)
+        rows.append(f"| {link} | {'-' if stars is None else stars} | {'-' if c.paper_upvotes is None else c.paper_upvotes} | "
+                    f"{ok}/{len(c.weights)} | {_cell(note or '-', note_max)} |")
     if len(cands) > DIGEST_ROWS_MAX:
-        rows.append(f"| ... | | {len(cands) - DIGEST_ROWS_MAX} more not shown |")
+        rows.append(f"| ... | | | | {len(cands) - DIGEST_ROWS_MAX} more not shown |")
     body = "\n".join([
         "Candidates found this run whose OpenWebText training could not be confirmed from the abstract, README or model card.",
         "Skim for anything that belongs on the leaderboard; add it with a PR to `registry/models.yaml`.",
         "",
-        "| candidate | HF weights ok / links | judge notes |",
-        "|---|---|---|",
+        "| candidate | GitHub stars | HF upvotes | HF weights ok / links | judge notes |",
+        "|---|---|---|---|---|",
         *rows,
     ])
     return f"[digest] {len(cands)} unclear candidates (run of {run_date})", body, ["candidate-digest"]

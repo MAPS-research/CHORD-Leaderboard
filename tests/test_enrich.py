@@ -106,3 +106,11 @@ def test_missing_model_card_leaves_readme_empty():
     cand = Candidate(sources=["hf-search:owt"], weights=[Weight(kind="hf", ref="x/y")])
     out = enrich(make_client(), cand, max_readme_chars=30000, **NOSLEEP)
     assert out.readme == "" and out.readme_repo is None
+
+
+@respx.mock
+def test_enrich_records_hf_paper_upvotes():
+    respx.get(f"{HF_API}/papers/2602.11590").mock(return_value=httpx.Response(200, json={"upvotes": 31}))
+    respx.get(url__startswith=f"{HF_API}/models").mock(return_value=httpx.Response(200, json=[]))
+    out = enrich(make_client(), Candidate(arxiv_id="2602.11590", sources=["x"]), max_readme_chars=100, **NOSLEEP)
+    assert out.paper_upvotes == 31

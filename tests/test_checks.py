@@ -86,3 +86,11 @@ def test_repo_exists_raises_on_rate_limit():
         repo_exists(make_client(), "https://github.com/a/limited", **NOSLEEP)
     with pytest.raises(HttpError, match="rate limit"):
         repo_exists(make_client(), "https://github.com/a/secondary", **NOSLEEP)
+
+
+@respx.mock
+def test_run_checks_records_stars_of_live_repos():
+    respx.get(f"{GITHUB_API}/repos/a/live").mock(return_value=httpx.Response(200, json={"archived": False, "stargazers_count": 42}))
+    cand = Candidate(arxiv_id="2602.11590", sources=["x"], repos=["https://github.com/a/live"])
+    out = run_checks(API, make_client(), cand, **NOSLEEP)
+    assert out.repo_stars == {"github:a/live": 42}

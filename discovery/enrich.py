@@ -51,14 +51,18 @@ def extract_weight_links(text: str) -> list[Weight]:
     return list(found.values())
 
 
-def _hf_paper_links(client, arxiv_id: str, sleep) -> tuple[list[str], list[Weight]]:
+def _hf_paper_links(client, arxiv_id: str, sleep) -> tuple[list[str], list[Weight], int | None]:
     repos: list[str] = []
+    upvotes = None
     resp = request_with_retry(client, "GET", f"{HF_API}/papers/{arxiv_id}", sleep=sleep)
-    if resp.status_code == 200 and (repo := resp.json().get("githubRepo")):
-        repos.append(repo)
+    if resp.status_code == 200:
+        paper = resp.json()
+        upvotes = paper.get("upvotes")
+        if repo := paper.get("githubRepo"):
+            repos.append(repo)
     resp = request_with_retry(client, "GET", f"{HF_API}/models", params={"filter": f"arxiv:{arxiv_id}", "limit": 100}, sleep=sleep)
     models = [Weight(kind="hf", ref=m["id"]) for m in resp.json()] if resp.status_code == 200 else []
-    return repos, models
+    return repos, models, upvotes
 
 
 def _collection_models(client, text: str, sleep) -> list[Weight]:
@@ -95,9 +99,9 @@ def _unique_repos(repos: list[str]) -> list[str]:
 
 
 def enrich(client, cand: Candidate, max_readme_chars: int, sleep=time.sleep) -> Candidate:
-    repos, weights = list(cand.repos), list(cand.weights)
+    repos, weights, upvotes = list(cand.repos), list(cand.weights), cand.paper_upvotes
     if cand.arxiv_id:
-        paper_repos, paper_models = _hf_paper_links(client, cand.arxiv_id, sleep)
+        paper_repos, paper_models, upvotes = _hf_paper_links(client, cand.arxiv_id, sleep)
         repos += paper_repos
         weights += paper_models
     repos = _unique_repos(repos + extract_github_repos(f"{cand.comments}\n{cand.abstract}"))
@@ -111,5 +115,5 @@ def enrich(client, cand: Candidate, max_readme_chars: int, sleep=time.sleep) -> 
             readme, readme_repo = card[:max_readme_chars], f"{HF_WEB}/{hf_ref}"
     if readme:
         weights += extract_weight_links(readme) + _collection_models(client, readme, sleep)
-    merged = cand.model_copy(update={"repos": repos, "readme": readme, "readme_repo": readme_repo, "weights": []})
+    merged = cand.model_copy(update={"repos": repos, "readme": readme, "readme_repo": readme_repo, "weights": [], "paper_upvotes": upvotes})
     return merged.merge(cand.model_copy(update={"weights": weights}))

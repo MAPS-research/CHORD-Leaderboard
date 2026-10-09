@@ -102,3 +102,19 @@ def test_issue_shows_generation_type_with_quote():
 def test_review_instructions_need_only_a_label():
     body = render_issue(_c(Verdict(owt_trained=YES, unconditional=YES)))[1]
     assert "Label `accept` to add it to the registry, or `reject` to record it as rejected." in body and "reason:" not in body
+
+
+def test_issue_needs_a_popular_repo_or_paper():
+    v = Verdict(owt_trained=YES, unconditional=YES, official_repo="https://github.com/a/b")
+    quiet = _c(v, repos=["https://github.com/a/b"]).model_copy(update={"repo_stars": {"github:a/b": 12}, "paper_upvotes": 3})
+    assert classify(quiet, min_stars=30, min_upvotes=10) == "digest"
+    assert classify(quiet.model_copy(update={"repo_stars": {"github:a/b": 30}}), min_stars=30, min_upvotes=10) == "issue"
+    assert classify(quiet.model_copy(update={"paper_upvotes": 10}), min_stars=30, min_upvotes=10) == "issue"
+    assert classify(quiet) == "issue"  # no thresholds given: popularity is not checked
+
+
+def test_digest_shows_stars_and_upvotes():
+    c = _c(Verdict(owt_trained=Judgement()), repos=["https://github.com/a/b"]).model_copy(
+        update={"repo_stars": {"github:a/b": 12}, "paper_upvotes": 3})
+    body = render_digest([c], date(2026, 10, 12))[1]
+    assert "| 12 | 3 |" in body

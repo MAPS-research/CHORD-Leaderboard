@@ -9,7 +9,7 @@ from discovery.http import HttpError
 from discovery.models import Candidate, CheckpointRef, Judgement, Verdict, Weight
 from discovery.pipeline import Deps, RunSummary, passes_prefilter, render_summary, repeated_failures, run
 
-CFG = load_config().model_copy(update={"max_judge_calls": 2, "judge_workers": 1})
+CFG = load_config().model_copy(update={"max_judge_calls": 2, "judge_workers": 1, "min_stars": 0, "min_upvotes": 0})
 SINCE = date(2026, 9, 17)
 
 
@@ -252,3 +252,9 @@ def test_new_issues_are_assigned_to_the_configured_reviewers(root, stubs):
     gh = FakeGitHub()
     run(CFG.model_copy(update={"assignees": ["JimmmmmL", "JunhaoZhu0220"]}), _deps(gh), root=root, since=SINCE, dry_run=False, no_dedupe=False)
     assert gh.created and gh.assignees == ["JimmmmmL", "JunhaoZhu0220"]
+
+
+def test_pipeline_applies_popularity_thresholds_from_config(root, stubs):
+    gh = FakeGitHub()
+    summary, _ = run(CFG.model_copy(update={"min_stars": 30, "min_upvotes": 10}), _deps(gh), root=root, since=SINCE, dry_run=False, no_dedupe=False)
+    assert summary.reported == [] and len(summary.digested) == 2  # stub candidates have no stars or upvotes

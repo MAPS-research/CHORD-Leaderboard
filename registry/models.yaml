@@ -31,13 +31,13 @@
 - {id: mdm-prime, name: MDM-Prime, paper: {arxiv: "2505.18495", venue: NeurIPS 2025, published: 2025-05-24}, github: "https://github.com/chen-hao-chao/mdm-prime",
    checkpoint: {kind: hf, ref: chen-hao-chao/mdm-prime}, family: masked-dlm, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint text/owt/results_prime_l2_owt (judgment: original l=6 headline retracted by errata); 512 steps, fp64, nucleus p=0.95"}, status: queued, added: 2026-10-08, source: seed}   # OWT weights under text/owt/
 - {id: pgm, name: PGM, paper: {arxiv: "2505.18883", published: 2025-05-24}, github: "https://github.com/jdeschena/pgm",
-   checkpoint: {kind: hf, ref: jdeschena/pgm}, family: masked-dlm, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint pgm_6_6_dim1024.ckpt; uniform-partition ancestral sampling, fp64, 1024 steps"}, status: queued, added: 2026-10-08, source: seed}   # text_pretrain branch
+   checkpoint: {kind: hf, ref: jdeschena/pgm}, family: masked-dlm, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint pgm_6_6_dim1024.ckpt; uniform-partition ancestral sampling, fp64, 1024 steps"}, status: excluded, added: 2026-10-08, source: seed}   # text_pretrain branch
 - {id: adlm, name: ADLM, paper: {arxiv: "2505.18456", venue: NeurIPS 2025, published: 2025-05-24}, github: "https://github.com/LituRout/ADLM",
    checkpoint: {kind: dropbox, ref: "https://github.com/LituRout/ADLM"}, family: masked-dlm, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint adlm-large.ckpt; remdm-loop, T=4096, nucleus p=0.9, eta=0.02 (paper Table 3)"}, status: queued, added: 2026-10-08, source: seed}   # Dropbox ckpts.zip linked from the README
 - {id: proseco-owt, name: ProSeCo, paper: {arxiv: "2602.11590", published: 2026-02-12}, github: "https://github.com/kuleshov-group/proseco",
-   checkpoint: {kind: hf, ref: kuleshov-group/proseco-owt}, family: masked-dlm, params: 169.6M, train_data: owt, tokenizer: gpt2, sampler: {note: "T=1024: 256 unmasking steps each followed by 3 corrector steps (paper Table 2)"}, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: hf, ref: kuleshov-group/proseco-owt}, family: masked-dlm, params: 169.6M, train_data: owt, tokenizer: gpt2, sampler: {note: "T=1024: 256 unmasking steps each followed by 3 corrector steps (paper Table 2)"}, status: excluded, added: 2026-10-08, source: seed}
 - {id: soft-masked-dlm, name: Soft-Masked DLM, paper: {url: "https://openreview.net/forum?id=Gba02UMvrG", venue: ICLR 2026}, github: "https://github.com/IBM/soft-masked-diffusion-language-models",
-   checkpoint: {kind: box, ref: "https://ibm.box.com/v/soft-masked-dlm-checkpoints"}, family: masked-dlm, train_data: owt, tokenizer: gpt2, sampler: {note: "SM iso-update from scratch, 1M steps; ReMDM-loop, 1024 steps, nucleus p=0.9, eta=0.02 (paper Table 1)"}, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: box, ref: "https://ibm.box.com/v/soft-masked-dlm-checkpoints"}, family: masked-dlm, train_data: owt, tokenizer: gpt2, sampler: {note: "SM iso-update from scratch, 1M steps; ReMDM-loop, 1024 steps, nucleus p=0.9, eta=0.02 (paper Table 1)"}, status: excluded, added: 2026-10-08, source: seed}
 
 # --- Block / AR-diffusion hybrids ---
 - {id: bd3lm-owt-block-size4, name: BD3-LM (block size 4), paper: {arxiv: "2503.09573", venue: ICLR 2025, published: 2025-03-12}, github: "https://github.com/kuleshov-group/bd3lms",
@@ -47,9 +47,9 @@
 - {id: e2d2-owt, name: E2D2, paper: {arxiv: "2510.22852", venue: NeurIPS 2025, published: 2025-10-26}, github: "https://github.com/kuleshov-group/e2d2",
    checkpoint: {kind: hf, ref: kuleshov-group/e2d2-owt}, family: block-hybrid, train_data: owt, tokenizer: gpt2, sampler: {note: "no unconditional-generation setting in the paper (likelihood only); unverified"}, status: queued, added: 2026-10-08, source: seed}
 - {id: owt-setdlm-smax32, name: SetDLM (s_max = 32), paper: {arxiv: "2607.01775", venue: ICML 2026, published: 2026-07-02}, github: "https://github.com/kuleshov-group/setdlms",
-   checkpoint: {kind: hf, ref: kuleshov-group/owt-setdlm-smax32}, family: block-hybrid, train_data: owt, tokenizer: gpt2, sampler: {note: "T=1024, nucleus p=0.95, repetition penalty 1.05, KV cache (paper Table 4)"}, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: hf, ref: kuleshov-group/owt-setdlm-smax32}, family: block-hybrid, train_data: owt, tokenizer: gpt2, sampler: {note: "T=1024, nucleus p=0.95, repetition penalty 1.05, KV cache (paper Table 4)"}, status: excluded, added: 2026-10-08, source: seed}
 - {id: blockgen, name: BlockGen, paper: {arxiv: "2606.02241", published: 2026-06-01}, github: "https://github.com/jdeschena/blockgen",
-   checkpoint: {kind: hf, ref: jdeschena/blockgen}, family: block-hybrid, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint blockgen/multi_block_size/16/owt/0.05_0.95/absorb; ARPC, 64 NFE per block, late-correction schedule (temperature unverified)"}, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: hf, ref: jdeschena/blockgen}, family: block-hybrid, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint blockgen/multi_block_size/16/owt/0.05_0.95/absorb; ARPC, 64 NFE per block, late-correction schedule (temperature unverified)"}, status: excluded, added: 2026-10-08, source: seed}
 
 # --- Continuous diffusion / flow ---
 - {id: langflow-owt, name: LangFlow, paper: {arxiv: "2604.11748", venue: ICML 2026, published: 2026-04-13}, github: "https://github.com/nealchen2003/LangFlow",
@@ -63,9 +63,9 @@
 - {id: fmlm-b-owt, name: FMLM, paper: {arxiv: "2602.16813", venue: NeurIPS 2026, published: 2026-02-18}, github: "https://github.com/david3684/flm",
    checkpoint: {kind: hf, ref: david3684/FMLM-B-OWT}, family: flow, params: 169.7M, train_data: owt, tokenizer: gpt2, sampler: {note: "gamma-sampling flow map, 1 step (paper headline); 32 steps gives the best PPL"}, status: queued, added: 2026-10-08, source: seed}
 - {id: fmlm-plus, name: FMLM+ (posterior refinement), paper: {arxiv: "2606.24773", published: 2026-06-23}, github: "https://github.com/MananAg007/posterior-refinement",
-   checkpoint: {kind: gdrive, ref: "https://github.com/MananAg007/posterior-refinement"}, family: flow, train_data: owt, tokenizer: gpt2, sampler: {note: "Posterior Refinement: 32 flow steps x 4 rounds, threshold 0.999 (paper Table 7)"}, status: queued, added: 2026-10-08, source: seed}   # Google Drive owt.ckpt linked from the README
+   checkpoint: {kind: gdrive, ref: "https://github.com/MananAg007/posterior-refinement"}, family: flow, train_data: owt, tokenizer: gpt2, sampler: {note: "Posterior Refinement: 32 flow steps x 4 rounds, threshold 0.999 (paper Table 7)"}, status: excluded, added: 2026-10-08, source: seed}   # Google Drive owt.ckpt linked from the README
 - {id: self-conditioned-fmlm, name: "ELF* / FMLM*", paper: {arxiv: "2607.00714", published: 2026-07-01}, github: "https://github.com/Ugness/self-conditioned-fmlm",
-   checkpoint: {kind: hf, ref: wonjKim/self-conditioned-fmlm}, family: flow, params: 105M, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint fmlm_star.ckpt; ctm gamma-sampling, 4 steps, gamma=1.0, w=5.0 (README)"}, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: hf, ref: wonjKim/self-conditioned-fmlm}, family: flow, params: 105M, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint fmlm_star.ckpt; ctm gamma-sampling, 4 steps, gamma=1.0, w=5.0 (README)"}, status: excluded, added: 2026-10-08, source: seed}
 - {id: s-flm, name: S-FLM, paper: {arxiv: "2605.11125", published: 2026-05-11}, github: "https://github.com/jdeschena/s-flm",
    checkpoint: {kind: hf, ref: jdeschena/s-flm}, family: flow, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint owt/sfm.ckpt; exact velocity, greedy noise removal, 32 NFE (temperature unverified)"}, status: queued, added: 2026-10-08, source: seed}
 - {id: ssdlm, name: SSD-LM, paper: {arxiv: "2210.17432", venue: ACL 2023, published: 2022-10-31}, github: "https://github.com/xhan77/ssd-lm",
@@ -77,9 +77,9 @@
 - {id: sdtt, name: SDTT, paper: {arxiv: "2410.21035", published: 2024-10-28}, github: "https://github.com/jdeschena/sdtt",
    checkpoint: {kind: hf, ref: jdeschena/sdtt}, family: distilled, train_data: owt, tokenizer: gpt2, sampler: {note: "branch baselines_kld_step_70000 (KLD, round 7); ancestral, 32 steps"}, status: queued, added: 2026-10-08, source: seed}   # weights on branches (sm/md/large students, teachers)
 - {id: di4c, name: Di4C, paper: {arxiv: "2410.08709", venue: ICML 2025, published: 2024-10-11}, github: "https://github.com/sony/di4c",
-   checkpoint: {kind: zenodo, ref: "https://zenodo.org/records/15124163"}, family: distilled, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint sdtt7-di4c2.ckpt; ancestral masked sampler (step count unverified, 8-128)"}, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: zenodo, ref: "https://zenodo.org/records/15124163"}, family: distilled, train_data: owt, tokenizer: gpt2, sampler: {note: "checkpoint sdtt7-di4c2.ckpt; ancestral masked sampler (step count unverified, 8-128)"}, status: excluded, added: 2026-10-08, source: seed}
 - {id: idlm-mdlm, name: IDLM (from MDLM), paper: {arxiv: "2602.19066", venue: ICML 2026, published: 2026-02-22}, github: "https://github.com/David-cripto/IDLM",
-   checkpoint: {kind: hf, ref: kekchpek/idlm-mdlm}, family: distilled, params: 169.6M, train_data: owt, tokenizer: gpt2, sampler: {note: "16 steps, ancestral_cache predictor, ancestral noise removal (model card)"}, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: hf, ref: kekchpek/idlm-mdlm}, family: distilled, params: 169.6M, train_data: owt, tokenizer: gpt2, sampler: {note: "16 steps, ancestral_cache predictor, ancestral noise removal (model card)"}, status: excluded, added: 2026-10-08, source: seed}
 
 # --- Sampler-only rows (no new weights; ref = base registry id) ---
 - {id: remdm, name: ReMDM, paper: {arxiv: "2503.00307", published: 2025-03-01}, github: "https://github.com/kuleshov-group/remdm",

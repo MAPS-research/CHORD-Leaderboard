@@ -52,3 +52,19 @@ def test_fetch_by_ids_batches_and_keys_by_id():
 def test_fetch_by_ids_empty_input_makes_no_request():
     assert fetch_by_ids(make_client(), [], **NOSLEEP) == {}
     assert respx.calls.call_count == 0
+
+
+def test_arxiv_requests_use_a_long_timeout():
+    from discovery.sources import arxiv as arxiv_mod
+
+    class Recorder:
+        def __init__(self):
+            self.kwargs = None
+
+        def request(self, method, url, **kw):
+            self.kwargs = kw
+            return httpx.Response(200, text=EMPTY, request=httpx.Request(method, url))
+
+    rec = Recorder()
+    search(rec, ["cs.CL"], ['abs:"OpenWebText"'], since=date(2026, 1, 1), sleep=lambda _: None)
+    assert rec.kwargs["timeout"] == arxiv_mod.ARXIV_TIMEOUT_S >= 120

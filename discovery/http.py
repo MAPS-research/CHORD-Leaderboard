@@ -25,12 +25,15 @@ def make_client(headers: dict[str, str] | None = None) -> httpx.Client:
     return httpx.Client(timeout=TIMEOUT_S, follow_redirects=True, headers={"User-Agent": USER_AGENT, **(headers or {})})
 
 
-def request_with_retry(client, method, url, *, params=None, headers=None, json=None,
+def request_with_retry(client, method, url, *, params=None, headers=None, json=None, timeout=None,
                        attempts: int = 5, base_delay: float = 2.0, sleep=time.sleep) -> httpx.Response:
     last: Exception | None = None
     for i in range(attempts):
         try:
-            resp = client.request(method, url, params=params, headers=headers, json=json)
+            kwargs = {"params": params, "headers": headers, "json": json}
+            if timeout is not None:
+                kwargs["timeout"] = timeout
+            resp = client.request(method, url, **kwargs)
         except httpx.TransportError as exc:
             last = exc
         else:

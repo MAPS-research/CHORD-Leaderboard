@@ -19,3 +19,6 @@ judge_workers: 4          # concurrent `claude -p` processes
 max_readme_chars: 30000
 # Assigned to every new candidate and digest issue, so they get an email.
 assignees: [JimmmmmL, JunhaoZhu0220]
+# Only mainstream work gets its own issue: official repo stars or HF Papers upvotes; the rest goes to the digest.
+min_stars: 30
+min_upvotes: 10

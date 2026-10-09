@@ -12,7 +12,7 @@ def test_models_registry_is_consistent():
     assert not [i for i, n in Counter(ids).items() if n > 1], "duplicate ids"
     assert {m.id for m in models if m.in_paper} == IN_PAPER
     assert all(m.status == "scored" for m in models if m.in_paper)
-    assert all(m.status == "queued" for m in models if not m.in_paper)
+    assert all(m.status in ("queued", "excluded") for m in models if not m.in_paper)  # excluded: below the mainstream threshold
     assert all(normalize_github(m.github) for m in models)
     for m in models:
         if m.checkpoint.kind == "sampler":

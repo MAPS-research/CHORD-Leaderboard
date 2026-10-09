@@ -143,3 +143,8 @@ def test_prompt_asks_for_the_best_checkpoint_only_and_its_sampling_setting():
     assert "best OpenWebText result" in SYSTEM_PROMPT and "one per model size" in SYSTEM_PROMPT
     assert "not every ablation or hyperparameter variant" in SYSTEM_PROMPT
     assert "sampling setting" in SYSTEM_PROMPT
+
+
+def test_prompt_treats_from_scratch_ar_models_as_unconditional_generators():
+    from discovery.judge import SYSTEM_PROMPT
+    assert "autoregressive language model pretrained from scratch on OpenWebText" in SYSTEM_PROMPT

@@ -142,8 +142,9 @@ def run(cfg: Config, deps: Deps, *, root: Path, since: date, dry_run: bool, no_d
         errors["judge"] = judged[0].judge_error or "all judge calls failed"
         judged = [c for c in judged if c.verdict is not None]
     judged = dedupe_within_run(filter_new(judged, known, judged=True, paper_exempt=exempt))
-    to_report = [c for c in judged if report.classify(c) == "issue"]
-    to_digest = [c for c in judged if report.classify(c) == "digest"]
+    kind = {c.key: report.classify(c, cfg.min_stars, cfg.min_upvotes) for c in judged}
+    to_report = [c for c in judged if kind[c.key] == "issue"]
+    to_digest = [c for c in judged if kind[c.key] == "digest"]
 
     opened, create_errors = [], []
     if can_report:

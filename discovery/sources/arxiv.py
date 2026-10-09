@@ -13,6 +13,7 @@ NS = {"a": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/ato
 PAGE_SIZE = 100
 MAX_RESULTS = 2000
 POLITE_DELAY_S = 3.0  # arXiv API terms of use: one request every 3 seconds
+ARXIV_TIMEOUT_S = 180.0  # the export API regularly takes close to a minute per page
 
 
 def build_query(categories: list[str], terms: list[str]) -> str:
@@ -42,7 +43,7 @@ def parse_feed(xml_text: str, source: str | None) -> list[Candidate]:
 
 
 def _get(client, params: dict, sleep) -> str:
-    resp = request_with_retry(client, "GET", ARXIV_API, params=params, sleep=sleep)
+    resp = request_with_retry(client, "GET", ARXIV_API, params=params, timeout=ARXIV_TIMEOUT_S, sleep=sleep)
     if resp.status_code != 200:
         raise HttpError(f"arXiv API: HTTP {resp.status_code}")
     return resp.text

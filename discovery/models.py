@@ -81,6 +81,8 @@ class Candidate(_Frozen):
     weights: list[Weight] = []
     verdict: Verdict | None = None
     judge_error: str | None = None
+    repo_stars: dict[str, int] = {}  # github key -> stargazers, for live repos
+    paper_upvotes: int | None = None  # HF Papers upvotes
 
     @model_validator(mode="after")
     def _needs_identity(self):
@@ -119,6 +121,8 @@ class Candidate(_Frozen):
                 "sources": _union(self.sources, other.sources, lambda s: s),
                 "repos": _union(self.repos, other.repos, lambda r: github_key(r) or r),
                 "weights": _union(self.weights, other.weights, lambda w: (w.kind, w.ref.lower())),
+                "repo_stars": {**other.repo_stars, **self.repo_stars},
+                "paper_upvotes": self.paper_upvotes if self.paper_upvotes is not None else other.paper_upvotes,
             }
         )
 

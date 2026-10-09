@@ -23,3 +23,8 @@
   reason: HF upload with no paper or official GitHub repository
   decided: '2026-10-09'
   source: discovery#4
+- key: arxiv:2610.04198
+  name: 'ALoDLM: Adaptively Looped Diffusion Language Models'
+  reason: no released OpenWebText checkpoint
+  decided: '2026-10-09'
+  source: discovery#8

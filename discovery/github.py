@@ -36,9 +36,11 @@ class GitHubClient:
             keys |= issue_keys(issue.get("body") or "")
         return keys
 
-    def create_issue(self, title: str, body: str, labels: list[str]) -> int:
-        resp = request_with_retry(self.client, "POST", self._url("issues"),
-                                  json={"title": title, "body": body, "labels": labels}, sleep=self.sleep)
+    def create_issue(self, title: str, body: str, labels: list[str], assignees: list[str] | None = None) -> int:
+        payload = {"title": title, "body": body, "labels": labels}
+        if assignees:
+            payload["assignees"] = assignees
+        resp = request_with_retry(self.client, "POST", self._url("issues"), json=payload, sleep=self.sleep)
         if resp.status_code != 201:
             raise HttpError(f"create issue: HTTP {resp.status_code}: {resp.text[:300]}")
         return resp.json()["number"]

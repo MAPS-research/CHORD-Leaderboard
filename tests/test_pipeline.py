@@ -32,8 +32,9 @@ class FakeGitHub:
             raise HttpError("boom")
         return self.keys
 
-    def create_issue(self, title, body, labels):
+    def create_issue(self, title, body, labels, assignees=None):
         self.created.append(title)
+        self.assignees = assignees
         return 100 + len(self.created)
 
 
@@ -161,11 +162,11 @@ def test_same_model_found_as_paper_and_as_hf_only_is_reported_once(root, stubs, 
 
 def test_one_failed_issue_creation_does_not_stop_the_run(root, stubs):
     class FlakyGitHub(FakeGitHub):
-        def create_issue(self, title, body, labels):
+        def create_issue(self, title, body, labels, assignees=None):
             if not self.created:
                 self.created.append("failed")
                 raise HttpError("create issue: HTTP 422")
-            return super().create_issue(title, body, labels)
+            return super().create_issue(title, body, labels, assignees)
 
     gh = FlakyGitHub()
     summary, _ = run(CFG, _deps(gh), root=root, since=SINCE, dry_run=False, no_dedupe=False)
@@ -245,3 +246,9 @@ def test_dry_run_opens_no_digest(root, stubs, monkeypatch):
     gh = FakeGitHub()
     summary, _ = run(CFG, _deps(gh), root=root, since=SINCE, dry_run=True, no_dedupe=False, today=TODAY)
     assert gh.created == [] and summary.digest_issue is None and len(summary.digested) == 2
+
+
+def test_new_issues_are_assigned_to_the_configured_reviewers(root, stubs):
+    gh = FakeGitHub()
+    run(CFG.model_copy(update={"assignees": ["JimmmmmL", "JunhaoZhu0220"]}), _deps(gh), root=root, since=SINCE, dry_run=False, no_dedupe=False)
+    assert gh.created and gh.assignees == ["JimmmmmL", "JunhaoZhu0220"]

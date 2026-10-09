@@ -21,6 +21,7 @@ class Config(BaseModel):
     max_judge_calls: int = 60
     judge_workers: int = 4
     max_readme_chars: int = 30000
+    assignees: list[str] = []  # GitHub users assigned to every new candidate and digest issue
 
 
 def load_config(path: Path | None = None) -> Config:

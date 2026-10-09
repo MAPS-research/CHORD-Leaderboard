@@ -30,8 +30,8 @@ def test_candidate_issue_keys_paginates_and_skips_prs():
 @respx.mock
 def test_create_issue_returns_number_and_raises_on_error():
     route = respx.post(ISSUES).mock(side_effect=[httpx.Response(201, json={"number": 7}), httpx.Response(422, json={})])
-    assert _gh().create_issue("t", "b", ["candidate"]) == 7
-    assert json.loads(route.calls[0].request.content) == {"title": "t", "body": "b", "labels": ["candidate"]}
+    assert _gh().create_issue("t", "b", ["candidate"], assignees=["JunhaoZhu0220"]) == 7
+    assert json.loads(route.calls[0].request.content) == {"title": "t", "body": "b", "labels": ["candidate"], "assignees": ["JunhaoZhu0220"]}
     with pytest.raises(HttpError, match="422"):
         _gh().create_issue("t", "b", [])
 

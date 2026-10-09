@@ -149,7 +149,7 @@ def run(cfg: Config, deps: Deps, *, root: Path, since: date, dry_run: bool, no_d
     if can_report:
         for c in to_report:
             try:
-                opened.append(deps.github.create_issue(*report.render_issue(c)))
+                opened.append(deps.github.create_issue(*report.render_issue(c), assignees=cfg.assignees))
             except Exception as exc:  # one bad issue must not cost the rest of the run
                 create_errors.append(f"{c.key}: {_err(exc)}")
     if create_errors:
@@ -157,7 +157,7 @@ def run(cfg: Config, deps: Deps, *, root: Path, since: date, dry_run: bool, no_d
     digest_issue = None
     if can_report and to_digest:
         try:
-            digest_issue = deps.github.create_issue(*report.render_digest(to_digest, today))
+            digest_issue = deps.github.create_issue(*report.render_digest(to_digest, today), assignees=cfg.assignees)
         except Exception as exc:
             errors["github_digest"] = _err(exc)
     summary = RunSummary(since=since, harvested=counts, errors=errors, warnings=warnings, new=len(fresh),

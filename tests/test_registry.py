@@ -11,6 +11,7 @@ from discovery.registry import known_keys, load_models, load_rejected, render_ya
 def test_default_config_loads():
     cfg = load_config()
     assert cfg.lookback_days == 21 and cfg.judge_model == "claude-opus-5-5" and cfg.max_readme_chars == 30000
+    assert cfg.assignees == ["JimmmmmL", "JunhaoZhu0220"]
 
 
 def test_empty_and_missing_files_load_as_empty(tmp_path: Path):

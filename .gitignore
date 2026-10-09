@@ -4,3 +4,4 @@ __pycache__/
 *.egg-info/
 backtest.jsonl
 last-run.json
+site/data/

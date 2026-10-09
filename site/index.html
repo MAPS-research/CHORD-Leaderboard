@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CHORD Leaderboard</title>
+<meta name="description" content="CHORD Leaderboard: open-ended text generators ranked by CHORD distance to the human reference.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans:400,600,700&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<section class="hero" aria-labelledby="page-title">
+  <h1 id="page-title">CHORD Leaderboard</h1>
+  <h3>Coherence-Aware Distributional Evaluation of Open-Ended Text Generation</h3>
+  <div class="authors">
+    <span class="author-block">Jinnuo Liu<sup>1,3,*</sup>,</span>
+    <span class="author-block">Junhao Zhu<sup>2,3,*</sup>,</span>
+    <span class="author-block">Weifeng Jiang<sup>3</sup>,</span>
+    <span class="author-block">Haoming Liu<sup>1,3</sup>,</span>
+    <span class="author-block">Hongyi Wen<sup>1,3,†</sup></span>
+  </div>
+  <div class="affiliations">
+    <span class="author-block"><sup>1</sup>New York University</span>
+    <span class="author-block"><sup>2</sup>Georgia Institute of Technology</span>
+    <span class="author-block"><sup>3</sup>Center for Data Science, NYU Shanghai</span>
+  </div>
+  <div class="author-notes"><sup>*</sup>Equal contribution&emsp;<sup>†</sup>Corresponding author</div>
+  <div class="modified">Last modified: <time id="last-modified">-</time></div>
+  <div class="buttons">
+    <a class="btn glow" href="https://arxiv.org/abs/2609.34240"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1h6l3 3v11H4V1zm6 0v3h3"/></svg>Paper</a>
+    <a class="btn" href="https://github.com/MAPS-research/CHORD"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0z"/></svg>Code</a>
+    <a class="btn" href="https://pypi.org/project/chord-metric/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>pip install chord-metric</a>
+  </div>
+</section>
+
+<section class="intro" aria-labelledby="intro-title">
+  <div class="intro-inner">
+    <h2 id="intro-title">Introduction</h2>
+    <p>Existing metrics for open-ended text generation measure likelihood, lexical diversity, or distributional similarity in generic representation space, yet they can miss fundamental dimensions of quality. A prominent blind spot is global coherence: a generated passage may be locally fluent while remaining globally contradictory, causally inconsistent, or topically disconnected.</p>
+    <p><b>CHORD</b> (<b>C</b>oherence-aware <b>H</b>idden-state <b>O</b>pen-generation <b>R</b>eference <b>D</b>istance) is a coherence-sensitive distributional metric. CHORD encodes generated and human-written corpora in the hidden-state space of a frozen LLM using a coherence-eliciting prompt, and compares the resulting distributions using MMD with an RBF kernel. This leaderboard ranks generators by their CHORD distance to the human reference on unconditional generation on OpenWebText; lower is closer. Generators are tagged as AR, discrete diffusion/flow, or continuous diffusion/flow, and can be ranked within each type.</p>
+  </div>
+</section>
+
+<section class="leaderboard" aria-labelledby="board-title">
+  <h2 id="board-title">Leaderboard</h2>
+  <div class="tabs" role="tablist" aria-label="Generator type">
+    <button type="button" class="tab" role="tab" data-group="all" aria-selected="true">All</button>
+    <button type="button" class="tab" role="tab" data-group="ar" aria-selected="false">AR</button>
+    <button type="button" class="tab" role="tab" data-group="discrete" aria-selected="false">Discrete diffusion/flow</button>
+    <button type="button" class="tab" role="tab" data-group="continuous" aria-selected="false">Continuous diffusion/flow</button>
+  </div>
+  <div class="table-wrap">
+    <table aria-label="CHORD Leaderboard">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Generator</th>
+          <th class="center"><button type="button" data-key="mean" aria-sort="ascending">CHORD ↓</button><br><small>(Qwen3.5-27B)</small></th>
+          <th class="center col-params"><button type="button" data-key="params" aria-sort="none">Params</button></th>
+          <th class="col-date"><button type="button" data-key="released" aria-sort="none">Released</button></th>
+          <th class="col-links">Links</th>
+        </tr>
+      </thead>
+      <tbody id="rows"><tr><td class="status" colspan="6">Loading…</td></tr></tbody>
+    </table>
+  </div>
+  <p class="tab-note">We report mean±std over 10 non-overlapping sample sets, each containing 500 samples of 512 tokens. CHORD reports RBF-MMD² (×10⁻²). Released: first arXiv version of the generator's paper (GPT-2: OpenAI release).</p>
+  <button type="button" class="settings-button" id="settings-toggle" aria-expanded="false" aria-controls="settings-info">evaluation settings</button>
+  <div class="settings-info" id="settings-info" hidden>
+    Setting: unconditional generation on OpenWebText.
+    <br>Each sample set: 500 samples of 512 tokens; 10 non-overlapping sample sets per generator.
+    <br>Encoder: Qwen3.5-27B, coherence-eliciting prompt; distance: MMD with an RBF kernel.
+    <br>Held-out human (packed): held-out human text from the same source, scored like a generator.
+  </div>
+</section>
+</body>
+</html>

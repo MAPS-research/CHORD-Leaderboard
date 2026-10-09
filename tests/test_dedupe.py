@@ -11,7 +11,7 @@ SEED_WITHOUT_ARXIV = RegistryEntry(
 MDLM = RegistryEntry(
     id="mdlm-owt", name="MDLM", paper=None, github="https://github.com/kuleshov-group/mdlm",
     checkpoint=Checkpoint(kind="hf", ref="kuleshov-group/mdlm-owt"), family="masked-dlm", train_data="owt",
-    status="scored", added=date(2026, 10, 8), source="seed")
+    status="queued", added=date(2026, 10, 8), source="seed")
 KNOWN = known_keys([SEED_WITHOUT_ARXIV, MDLM], [])
 
 

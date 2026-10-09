@@ -21,6 +21,7 @@ def _raw(**over):
         "official_checkpoints": [{"kind": "hf", "ref": "kuleshov-group/proseco-owt",
                                   "evidence": [{"quote": "Our OWT model is on the Hub:", "source": "readme"}]}],
         "family_guess": "masked-dlm",
+        "generation_type": {"value": "discrete", "evidence": [{"quote": "masked diffusion model", "source": "abstract"}]},
         "notes": "One OWT checkpoint.",
     }
     raw.update(over)
@@ -122,3 +123,16 @@ def test_missing_or_malformed_structured_output_records_error():
     assert judge(FakeRunner([_stdout(None)] * 3), "m", CAND, sleep=lambda _: None).judge_error
     out = judge(FakeRunner([_stdout({"owt_trained": "yes"})]), "m", CAND, sleep=lambda _: None)
     assert out.verdict is None and out.judge_error
+
+
+def test_generation_type_is_validated_like_other_judgements():
+    v = validate_verdict(_raw(), CAND)
+    assert v.generation_type.value == "discrete" and v.generation_type.evidence[0].url == "https://arxiv.org/abs/2602.11590"
+    unsupported = validate_verdict(_raw(generation_type={"value": "continuous", "evidence": [{"quote": "embedding flow", "source": "readme"}]}), CAND)
+    assert unsupported.generation_type.value == "unclear"
+
+
+def test_schema_asks_for_one_of_three_generation_types():
+    gt = VERDICT_SCHEMA["properties"]["generation_type"]
+    assert gt["properties"]["value"]["enum"] == ["ar", "discrete", "continuous", "unclear"]
+    assert "generation_type" in VERDICT_SCHEMA["required"]

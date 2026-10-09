@@ -15,6 +15,7 @@ NOTES_MAX = 1000
 TABLE_WEIGHTS_MAX = 50
 JSON_WEIGHTS_MAX = 100  # keeps the body far below GitHub's 65,536-character limit
 _PLAUSIBLE = ("ok", "unverifiable")
+TYPE_LABEL = {"ar": "AR", "discrete": "Discrete diffusion/flow", "continuous": "Continuous diffusion/flow", "unclear": "unclear"}
 
 
 DIGEST_ROWS_MAX = 300
@@ -97,8 +98,8 @@ def _title(c: Candidate) -> str:
     return text[:TITLE_MAX]
 
 
-def _judgement_md(label: str, j: Judgement) -> str:
-    lines = [f"- **{label}:** {j.value}"]
+def _judgement_md(label: str, j, value: str | None = None) -> str:
+    lines = [f"- **{label}:** {value or j.value}"]
     lines += [f'  > "{e.quote[:QUOTE_MAX]}" ([source]({e.url}))' for e in j.evidence]
     return "\n".join(lines)
 
@@ -111,6 +112,7 @@ def _verdict_md(c: Candidate) -> str:
     return "\n".join([
         _judgement_md("Trained on OpenWebText", v.owt_trained),
         _judgement_md("Unconditional generation", v.unconditional),
+        _judgement_md("Generation type", v.generation_type, TYPE_LABEL[v.generation_type.value]),
         f"- **Official checkpoints:**\n{ckpts}",
         f"- **Family guess:** {v.family_guess or 'unknown'}",
         f"- **Notes:** {v.notes or '-'}",

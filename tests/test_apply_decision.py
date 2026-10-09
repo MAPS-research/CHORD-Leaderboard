@@ -81,3 +81,17 @@ def test_broken_issue_body_fails_without_touching_files(root):
 def test_non_candidate_issue_is_refused(root):
     with pytest.raises(ValueError, match="candidate"):
         apply("accept", _event(labels=("accept",)), [], root, TODAY)
+
+
+def test_accept_fills_group_from_the_generation_type():
+    from discovery.models import TypeJudgement
+    v = CAND.verdict.model_copy(update={"generation_type": TypeJudgement(value="discrete")})
+    [e] = accept_entries(CAND.model_copy(update={"verdict": v}), 42, TODAY, taken=set())
+    assert e.group == "discrete"
+
+
+def test_accept_with_unclear_type_leaves_group_for_the_reviewer(root):
+    body = apply("accept", _event(), [], root, TODAY)
+    text = (root / "registry" / "models.yaml").read_text()
+    [e] = load_models(root / "registry" / "models.yaml")
+    assert e.group is None and "# TODO(review): generation type unclear" in text

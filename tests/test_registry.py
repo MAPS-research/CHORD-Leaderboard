@@ -24,7 +24,7 @@ def test_empty_and_missing_files_load_as_empty(tmp_path: Path):
 def test_known_keys_union():
     m = RegistryEntry(id="mdlm-owt", name="MDLM", paper=Paper(arxiv="2406.07524"), github="https://github.com/kuleshov-group/mdlm",
                       checkpoint=Checkpoint(kind="hf", ref="kuleshov-group/mdlm-owt"), family="masked-dlm", train_data="owt",
-                      status="scored", added=date(2026, 10, 8), source="seed")
+                      status="queued", added=date(2026, 10, 8), source="seed")
     r = RejectedEntry(key="arxiv:2502.11564", name="RDLM", reason="LM1B only", decided=date(2026, 10, 8), source="seed")
     assert known_keys([m], [r]) == {"arxiv:2406.07524", "github:kuleshov-group/mdlm", "hf:kuleshov-group/mdlm-owt", "arxiv:2502.11564"}
 

@@ -11,6 +11,7 @@ from discovery.report import parse_candidate
 
 SAMPLER_TODO = "sampler: null  # TODO(sampler): fill from paper"
 FAMILY_TODO = "  # TODO(review): family unknown, set before merging"
+GROUP_TODO = "group: null  # TODO(review): generation type unclear; set ar, discrete or continuous"
 DEFAULT_FAMILY = "masked-dlm"
 _REASON = re.compile(r"^\s*reason:\s*(.+)", re.IGNORECASE | re.DOTALL)
 
@@ -41,6 +42,8 @@ def accept_entries(cand: Candidate, issue_number: int, today: date, taken: set[s
         raise ValueError("No GitHub repository was identified for this candidate.")
     repo_name = (normalize_github(repo) or repo).split("/")[-1]
     family = (cand.verdict.family_guess if cand.verdict else None) or DEFAULT_FAMILY
+    gt = cand.verdict.generation_type.value if cand.verdict else "unclear"
+    group = None if gt == "unclear" else gt
     paper = Paper(arxiv=cand.arxiv_id, title=cand.title or None) if cand.arxiv_id else None
     taken = set(taken)
     out = []
@@ -49,7 +52,7 @@ def accept_entries(cand: Candidate, issue_number: int, today: date, taken: set[s
         entry_id = _unique(base, taken)
         taken.add(entry_id)
         out.append(RegistryEntry(id=entry_id, name=repo_name, paper=paper, github=repo, checkpoint=Checkpoint(kind=kind, ref=ref),
-                                 family=family, train_data="owt", status="queued", added=today, source=f"discovery#{issue_number}"))
+                                 family=family, group=group, train_data="owt", status="queued", added=today, source=f"discovery#{issue_number}"))
     return out
 
 
@@ -69,7 +72,7 @@ def _append(path: Path, block: str) -> None:
 
 
 def _entry_yaml(entry: RegistryEntry, family_known: bool) -> str:
-    text = render_yaml_block([entry.model_dump(mode="json")]).replace("sampler: null", SAMPLER_TODO)
+    text = render_yaml_block([entry.model_dump(mode="json")]).replace("sampler: null", SAMPLER_TODO).replace("group: null", GROUP_TODO)
     if not family_known:
         text = text.replace(f"family: {entry.family}", f"family: {entry.family}{FAMILY_TODO}", 1)
     return text

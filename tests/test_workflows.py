@@ -33,6 +33,21 @@ def test_apply_decision_trigger_and_permissions():
 
 
 def test_no_untrusted_expressions_inside_run_scripts():
-    for name in ("discover.yml", "apply-decision.yml"):
+    for name in ("discover.yml", "apply-decision.yml", "pages.yml"):
         for script in _run_blocks(_load(name)):
             assert not UNTRUSTED.search(script), f"{name}: pass untrusted values through env, not ${{{{ }}}} in run"
+
+
+def test_pages_builds_and_deploys_on_data_or_site_changes():
+    wf = _load("pages.yml")
+    push = wf[True]["push"]
+    assert push["branches"] == ["main"]
+    assert {"registry/**", "results/**", "site/**", "leaderboard_site/**"} <= set(push["paths"])
+    assert "workflow_dispatch" in wf[True]
+    assert wf["permissions"] == {"contents": "read", "pages": "write", "id-token": "write"}
+    steps = wf["jobs"]["deploy"]["steps"]
+    runs = [s.get("run", "") for s in steps]
+    uses = [s.get("uses", "") for s in steps]
+    assert any("python -m leaderboard_site.build" in r for r in runs)
+    assert any(u.startswith("actions/upload-pages-artifact@") for u in uses)
+    assert any(u.startswith("actions/deploy-pages@") for u in uses)

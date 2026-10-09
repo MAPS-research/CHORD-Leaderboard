@@ -11,6 +11,7 @@ Tri = Literal["yes", "no", "unclear"]
 WeightKind = Literal["hf", "gdrive", "dropbox", "zenodo", "box", "github-release"]
 CheckpointKind = Literal["hf", "gdrive", "dropbox", "zenodo", "box", "github-release", "sampler"]
 CheckResult = Literal["ok", "missing", "gated", "unverifiable", "unchecked"]
+SiteGroup = Literal["ar", "discrete", "continuous"]  # leaderboard type tag: AR, discrete or continuous diffusion/flow
 Family = Literal["ar", "masked-dlm", "uniform-dlm", "hybrid-dlm", "block-hybrid", "continuous", "flow", "distilled"]
 
 
@@ -28,6 +29,13 @@ class Judgement(_Frozen):
     evidence: list[Evidence] = []
 
 
+class TypeJudgement(_Frozen):
+    """Generation type for the site's three tags, judged like the other criteria (quotes required)."""
+
+    value: Literal["ar", "discrete", "continuous", "unclear"] = "unclear"
+    evidence: list[Evidence] = []
+
+
 class CheckpointRef(_Frozen):
     kind: WeightKind
     ref: str
@@ -40,6 +48,7 @@ class Verdict(_Frozen):
     official_repo: str | None = None
     official_checkpoints: list[CheckpointRef] = []
     family_guess: Family | None = None
+    generation_type: TypeJudgement = TypeJudgement()
     notes: str = ""
 
 
@@ -118,6 +127,8 @@ class Paper(_Frozen):
     arxiv: str | None = None
     title: str | None = None
     venue: str | None = None
+    published: date | None = None  # first arXiv version (or official release when there is no arXiv paper)
+    url: str | None = None  # paper link when there is no arXiv id
 
 
 class Checkpoint(_Frozen):
@@ -132,6 +143,7 @@ class RegistryEntry(_Frozen):
     github: str
     checkpoint: Checkpoint
     family: Family
+    group: SiteGroup | None = None
     params: str | None = None
     train_data: Literal["owt", "owt2", "webtext"]
     tokenizer: str | None = None
@@ -140,6 +152,17 @@ class RegistryEntry(_Frozen):
     sampler: dict | None = None
     added: date
     source: str
+
+    @model_validator(mode="after")
+    def _scored_entries_have_site_fields(self):
+        if self.status != "scored":
+            return self
+        missing = [f for f, ok in (("group", self.group), ("params", self.params),
+                                   ("paper.published", self.paper and self.paper.published),
+                                   ("paper.arxiv or paper.url", self.paper and (self.paper.arxiv or self.paper.url))) if not ok]
+        if missing:
+            raise ValueError(f"scored entry {self.id} is missing {', '.join(missing)}")
+        return self
 
     def keys(self) -> set[str]:
         out = set()

@@ -89,3 +89,10 @@ def test_huge_candidates_stay_under_the_issue_body_limit():
     body = render_issue(c)[1]
     assert len(body) < 65536
     assert parse_candidate(body).key == c.key
+
+
+def test_issue_shows_generation_type_with_quote():
+    from discovery.models import TypeJudgement
+    gt = TypeJudgement(value="continuous", evidence=[Evidence(quote="embedding flow matching", url="https://arxiv.org/abs/2602.11590")])
+    body = render_issue(_c(Verdict(owt_trained=YES, unconditional=YES, generation_type=gt)))[1]
+    assert "**Generation type:** Continuous diffusion/flow" in body and "embedding flow matching" in body

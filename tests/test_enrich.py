@@ -3,7 +3,7 @@ import respx
 
 from discovery.enrich import GITHUB_API, HF_API, enrich, extract_github_repos, extract_weight_links
 from discovery.http import make_client
-from discovery.models import Candidate
+from discovery.models import Candidate, Weight
 
 README = """
 # ProSeCo
@@ -89,3 +89,20 @@ def test_enrich_expands_linked_hf_collections_into_model_weights():
     out = enrich(make_client(), cand, max_readme_chars=30000, **NOSLEEP)
     refs = [w.ref for w in out.weights if w.kind == "hf"]
     assert refs == ["sahoo-diffusion/Eso-LM-B-alpha-1", "sahoo-diffusion/Eso-LM-B-alpha-0_25"]
+
+
+@respx.mock
+def test_hf_only_candidate_is_judged_on_its_model_card():
+    card = "# ESM-OWT-160M\nTrained from scratch on OpenWebText. Unconditional samples: `python sample.py`."
+    respx.get("https://huggingface.co/guan-wang/ESM-OWT-160M/raw/main/README.md").mock(return_value=httpx.Response(200, text=card))
+    cand = Candidate(sources=["hf-search:owt"], weights=[Weight(kind="hf", ref="guan-wang/ESM-OWT-160M")])
+    out = enrich(make_client(), cand, max_readme_chars=30000, **NOSLEEP)
+    assert out.readme == card and out.readme_repo == "https://huggingface.co/guan-wang/ESM-OWT-160M"
+
+
+@respx.mock
+def test_missing_model_card_leaves_readme_empty():
+    respx.get("https://huggingface.co/x/y/raw/main/README.md").mock(return_value=httpx.Response(404))
+    cand = Candidate(sources=["hf-search:owt"], weights=[Weight(kind="hf", ref="x/y")])
+    out = enrich(make_client(), cand, max_readme_chars=30000, **NOSLEEP)
+    assert out.readme == "" and out.readme_repo is None

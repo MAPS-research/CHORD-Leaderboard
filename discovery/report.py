@@ -17,12 +17,49 @@ JSON_WEIGHTS_MAX = 100  # keeps the body far below GitHub's 65,536-character lim
 _PLAUSIBLE = ("ok", "unverifiable")
 
 
-def should_report(c: Candidate) -> bool:
+DIGEST_ROWS_MAX = 300
+DIGEST_NOTE_MAX = 300
+DIGEST_BUDGET = 50000  # characters for all rows; notes shrink so every row fits
+
+
+def classify(c: Candidate) -> str | None:
+    """"issue" for a confirmed OWT candidate, "digest" for one a human should glance at, None to drop."""
     if c.verdict is None:
-        return True  # judge failed: a human decides
+        return "digest"  # judge failed: listed for a human
     if c.verdict.owt_trained.value == "no":
-        return False
-    return any(w.check in _PLAUSIBLE for w in c.weights) or bool(c.verdict.official_checkpoints)
+        return None
+    if not (any(w.check in _PLAUSIBLE for w in c.weights) or c.verdict.official_checkpoints):
+        return None
+    return "issue" if c.verdict.owt_trained.value == "yes" else "digest"
+
+
+def _cell(text: str, limit: int) -> str:
+    return " ".join(text.split()).replace("|", "\\|")[:limit]
+
+
+def render_digest(cands: list[Candidate], run_date) -> tuple[str, str, list[str]]:
+    rows = []
+    note_max = max(40, min(DIGEST_NOTE_MAX, DIGEST_BUDGET // max(len(cands), 1) - 160))
+    for c in cands[:DIGEST_ROWS_MAX]:
+        if c.arxiv_id:
+            link = f"[{_cell(c.title or c.arxiv_id, 90)}](https://arxiv.org/abs/{c.arxiv_id})"
+        else:
+            ref = next(w.ref for w in c.weights if w.kind == "hf")
+            link = f"[{ref}](https://huggingface.co/{ref})"
+        ok = sum(w.check == "ok" for w in c.weights)
+        note = c.judge_error if c.verdict is None else c.verdict.notes
+        rows.append(f"| {link} | {ok}/{len(c.weights)} | {_cell(note or '-', note_max)} |")
+    if len(cands) > DIGEST_ROWS_MAX:
+        rows.append(f"| ... | | {len(cands) - DIGEST_ROWS_MAX} more not shown |")
+    body = "\n".join([
+        "Candidates found this run whose OpenWebText training could not be confirmed from the abstract, README or model card.",
+        "Skim for anything that belongs on the leaderboard; add it with a PR to `registry/models.yaml`.",
+        "",
+        "| candidate | HF weights ok / links | judge notes |",
+        "|---|---|---|",
+        *rows,
+    ])
+    return f"[digest] {len(cands)} unclear candidates (run of {run_date})", body, ["candidate-digest"]
 
 
 def needs_manual_check(c: Candidate) -> bool:

@@ -1,7 +1,9 @@
+from datetime import date
+
 import pytest
 
 from discovery.models import Candidate, CheckpointRef, Evidence, Judgement, Verdict, Weight
-from discovery.report import issue_keys, needs_manual_check, parse_candidate, render_issue, should_report
+from discovery.report import classify, issue_keys, needs_manual_check, parse_candidate, render_digest, render_issue
 
 YES = Judgement(value="yes", evidence=[Evidence(quote="trained on OpenWebText", url="https://arxiv.org/abs/2602.11590")])
 
@@ -12,14 +14,23 @@ def _c(verdict=None, weights=None, **kw):
                      verdict=verdict, readme="x" * 30000, **kw)
 
 
-def test_should_report_rules():
-    assert should_report(_c(Verdict(owt_trained=YES, unconditional=YES)))
-    assert not should_report(_c(Verdict(owt_trained=Judgement(value="no"))))
-    assert should_report(_c(Verdict(owt_trained=Judgement(value="unclear")), weights=[Weight(kind="gdrive", ref="u", check="unverifiable")]))
-    assert not should_report(_c(Verdict(owt_trained=YES), weights=[Weight(kind="hf", ref="a/b", check="missing")]))
-    assert should_report(_c(Verdict(owt_trained=YES, official_checkpoints=[CheckpointRef(kind="hf", ref="a/b")]),
-                            weights=[Weight(kind="hf", ref="a/b", check="gated")]))
-    assert should_report(_c(None, judge_error="JudgeError: down"))
+def test_classify_rules():
+    assert classify(_c(Verdict(owt_trained=YES, unconditional=YES))) == "issue"
+    assert classify(_c(Verdict(owt_trained=Judgement(value="no")))) is None
+    assert classify(_c(Verdict(owt_trained=Judgement(value="unclear")), weights=[Weight(kind="gdrive", ref="u", check="unverifiable")])) == "digest"
+    assert classify(_c(Verdict(owt_trained=YES), weights=[Weight(kind="hf", ref="a/b", check="missing")])) is None
+    assert classify(_c(Verdict(owt_trained=YES, official_checkpoints=[CheckpointRef(kind="hf", ref="a/b")]),
+                       weights=[Weight(kind="hf", ref="a/b", check="gated")])) == "issue"
+    assert classify(_c(None, judge_error="JudgeError: down")) == "digest"
+
+
+def test_digest_lists_every_candidate_and_stays_small():
+    cands = [_c(Verdict(owt_trained=Judgement(), notes="n" * 2000)).model_copy(update={"arxiv_id": f"2610.{i:05d}"}) for i in range(150)]
+    cands.append(Candidate(sources=["hf-search:owt"], weights=[Weight(kind="hf", ref="x/m-owt", check="ok")], judge_error="JudgeError: x"))
+    title, body, labels = render_digest(cands, date(2026, 10, 12))
+    assert title == "[digest] 151 unclear candidates (run of 2026-10-12)" and labels == ["candidate-digest"]
+    assert "https://arxiv.org/abs/2610.00000" in body and "x/m-owt" in body and "JudgeError: x" in body
+    assert len(body) < 65536
 
 
 def test_needs_manual_check():

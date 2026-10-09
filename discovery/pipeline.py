@@ -39,6 +39,10 @@ class RunSummary(BaseModel):
     deferred: int = 0
     reported: list[str] = []
     opened: list[int] = []
+    digested: list[str] = []
+    digest_issue: int | None = None
+    skipped_seen: int = 0
+    judged_on: dict[str, date] = {}  # key -> date judged with a verdict; later runs skip these keys
     all_sources_failed: bool = False
 
 
@@ -104,8 +108,11 @@ def _judge_all(cfg: Config, deps: Deps, cands: list[Candidate]):
     return judged, len(deferred), outage
 
 
-def run(cfg: Config, deps: Deps, *, root: Path, since: date, dry_run: bool, no_dedupe: bool):
+def run(cfg: Config, deps: Deps, *, root: Path, since: date, dry_run: bool, no_dedupe: bool,
+        seen: dict[str, date] | None = None, today: date | None = None):
     reg = root / "registry"
+    today = today or date.today()
+    seen = {k: d for k, d in (seen or {}).items() if d >= since}  # entries older than the window cannot recur
     cands, counts, errors = _harvest(cfg, deps, since)
 
     known, exempt, can_report = frozenset(), frozenset(), not dry_run
@@ -121,6 +128,8 @@ def run(cfg: Config, deps: Deps, *, root: Path, since: date, dry_run: bool, no_d
                 can_report = False
 
     fresh = filter_new(cands, known, judged=False)
+    skipped_seen = sum(c.key in seen for c in fresh)
+    fresh = [c for c in fresh if c.key not in seen]
     try:
         fresh = _fill_metadata(deps, fresh)
     except Exception as exc:
@@ -128,11 +137,13 @@ def run(cfg: Config, deps: Deps, *, root: Path, since: date, dry_run: bool, no_d
     relevant = [c for c in fresh if passes_prefilter(c, cfg.prefilter_terms)]
     checked, warnings = _enrich_and_check(cfg, deps, relevant)
     judged, deferred, outage = _judge_all(cfg, deps, checked)
+    judged_on = {**seen, **{c.key: today for c in judged if c.verdict is not None}}  # failures are retried next run
     if outage:
         errors["judge"] = judged[0].judge_error or "all judge calls failed"
         judged = [c for c in judged if c.verdict is not None]
     judged = dedupe_within_run(filter_new(judged, known, judged=True, paper_exempt=exempt))
-    to_report = [c for c in judged if report.should_report(c)]
+    to_report = [c for c in judged if report.classify(c) == "issue"]
+    to_digest = [c for c in judged if report.classify(c) == "digest"]
 
     opened, create_errors = [], []
     if can_report:
@@ -143,9 +154,17 @@ def run(cfg: Config, deps: Deps, *, root: Path, since: date, dry_run: bool, no_d
                 create_errors.append(f"{c.key}: {_err(exc)}")
     if create_errors:
         errors["github_create"] = "; ".join(create_errors)
+    digest_issue = None
+    if can_report and to_digest:
+        try:
+            digest_issue = deps.github.create_issue(*report.render_digest(to_digest, today))
+        except Exception as exc:
+            errors["github_digest"] = _err(exc)
     summary = RunSummary(since=since, harvested=counts, errors=errors, warnings=warnings, new=len(fresh),
                          after_prefilter=len(relevant), judged=len(judged), deferred=deferred,
-                         reported=[c.key for c in to_report], opened=opened, all_sources_failed=not counts)
+                         reported=[c.key for c in to_report], opened=opened, all_sources_failed=not counts,
+                         digested=[c.key for c in to_digest], digest_issue=digest_issue,
+                         skipped_seen=skipped_seen, judged_on=judged_on)
     return summary, judged
 
 
@@ -169,7 +188,9 @@ def render_summary(s: RunSummary, repeated: list[str]) -> str:
     lines += [f"| {name} | {n} |" for name, n in s.harvested.items()]
     lines += ["", f"- new (not yet known): {s.new}", f"- after prefilter: {s.after_prefilter}",
               f"- judged: {s.judged} (deferred by cap: {s.deferred})", f"- reported: {len(s.reported)}",
-              f"- issues opened: {', '.join(f'#{n}' for n in s.opened) or 'none'}"]
+              f"- issues opened: {', '.join(f'#{n}' for n in s.opened) or 'none'}",
+              f"- digest: {len(s.digested)} unclear candidates" + (f" in #{s.digest_issue}" if s.digest_issue else ""),
+              f"- skipped (judged in an earlier run): {s.skipped_seen}"]
     if s.errors:
         lines += ["", "### Errors"] + [f"- **{k}**: {v}" for k, v in s.errors.items()]
     if repeated:

@@ -36,16 +36,18 @@ def cmd_run(args) -> int:
         print("GITHUB_TOKEN is required unless --dry-run is given", file=sys.stderr)
         return 2
     deps = Deps(http=make_client(), hf=HfApi(), llm=run_claude, github=github)
-    summary, judged = run(cfg, deps, root=args.root, since=since, dry_run=args.dry_run, no_dedupe=args.no_dedupe)
+    prev = None
+    if args.prev_summary and Path(args.prev_summary).exists():
+        prev = RunSummary.model_validate_json(Path(args.prev_summary).read_text(encoding="utf-8"))
+    seen = prev.judged_on if prev and not args.no_dedupe else None
+    summary, judged = run(cfg, deps, root=args.root, since=since, dry_run=args.dry_run, no_dedupe=args.no_dedupe, seen=seen)
 
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:
             for c in judged:
-                row = {"reported": c.key in summary.reported, "candidate": c.model_dump(mode="json", exclude={"readme"})}
+                row = {"reported": c.key in summary.reported, "digest": c.key in summary.digested,
+                       "candidate": c.model_dump(mode="json", exclude={"readme"})}
                 fh.write(json.dumps(row) + "\n")
-    prev = None
-    if args.prev_summary and Path(args.prev_summary).exists():
-        prev = RunSummary.model_validate_json(Path(args.prev_summary).read_text(encoding="utf-8"))
     repeated = repeated_failures(prev, summary)
     if args.summary_out:
         Path(args.summary_out).write_text(summary.model_dump_json(indent=2), encoding="utf-8")

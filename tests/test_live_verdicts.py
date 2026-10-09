@@ -7,7 +7,7 @@ from discovery import checks, enrich, judge
 from discovery.config import load_config
 from discovery.http import make_client
 from discovery.models import Candidate, Weight
-from discovery.report import should_report
+from discovery.report import classify
 from discovery.sources import arxiv
 
 pytestmark = pytest.mark.live
@@ -27,7 +27,7 @@ def test_proseco_qualifies():
     c = _screen(Candidate(arxiv_id="2602.11590", sources=["live"]))
     assert c.verdict.owt_trained.value == "yes" and c.verdict.unconditional.value == "yes"
     assert any(w.ref.lower() == "kuleshov-group/proseco-owt" and w.check == "ok" for w in c.weights)
-    assert should_report(c)
+    assert classify(c) == "issue"
 
 
 def test_eso_lm_official_checkpoints_are_the_public_copies():

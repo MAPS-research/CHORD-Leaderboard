@@ -33,9 +33,8 @@ jobs:
       - run: pip install -e .
       - name: Apply decision
         run: |
-          gh api "repos/$REPO/issues/$NUMBER/comments" --paginate --jq '.[]' | jq -s . > comments.json
           if ! python -m discovery apply-decision --action "$ACTION" --event "$GITHUB_EVENT_PATH" \
-                 --comments comments.json --summary-out summary.md 2> error.txt; then
+                 --summary-out summary.md 2> error.txt; then
             { echo "Could not apply \`$ACTION\`:"; echo; cat error.txt; } > comment.md
             gh issue comment "$NUMBER" --body-file comment.md
             exit 1

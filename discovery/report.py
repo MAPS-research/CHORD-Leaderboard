@@ -144,7 +144,7 @@ def render_issue(c: Candidate) -> tuple[str, str, list[str]]:
         _verdict_md(c),
         "",
         "### Review",
-        "Label `accept` to open a registry PR, or comment `reason: <why>` and label `reject`.",
+        "Label `accept` to add it to the registry, or `reject` to record it as rejected.",
         "",
         *(f"<!-- cand: {k} -->" for k in sorted(c.keys())),
         "```json candidate",

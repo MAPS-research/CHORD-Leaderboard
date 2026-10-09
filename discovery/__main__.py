@@ -65,9 +65,8 @@ def cmd_apply_decision(args) -> int:
     from discovery.apply_decision import apply
 
     event = json.loads(args.event.read_text(encoding="utf-8"))
-    comments = json.loads(args.comments.read_text(encoding="utf-8")) if args.comments else []
     try:
-        body = apply(args.action, event, comments, args.root, args.today or date.today())
+        body = apply(args.action, event, args.root, args.today or date.today())
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -92,7 +91,6 @@ def build_parser() -> argparse.ArgumentParser:
     a = sub.add_parser("apply-decision", help="apply an accept/reject label to the registry")
     a.add_argument("--action", choices=["accept", "reject"], required=True)
     a.add_argument("--event", type=Path, required=True, help="GitHub event payload ($GITHUB_EVENT_PATH)")
-    a.add_argument("--comments", type=Path, default=None, help="JSON array of issue comments")
     a.add_argument("--root", type=Path, default=REPO_ROOT)
     a.add_argument("--today", type=date.fromisoformat, default=None)
     a.add_argument("--summary-out", type=Path, required=True, help="where to write the comment posted on the issue")

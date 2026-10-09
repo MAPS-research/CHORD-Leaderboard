@@ -97,3 +97,8 @@ def test_issue_shows_generation_type_with_quote():
     gt = TypeJudgement(value="continuous", evidence=[Evidence(quote="embedding flow matching", url="https://arxiv.org/abs/2602.11590")])
     body = render_issue(_c(Verdict(owt_trained=YES, unconditional=YES, generation_type=gt)))[1]
     assert "**Generation type:** Continuous diffusion/flow" in body and "embedding flow matching" in body
+
+
+def test_review_instructions_need_only_a_label():
+    body = render_issue(_c(Verdict(owt_trained=YES, unconditional=YES)))[1]
+    assert "Label `accept` to add it to the registry, or `reject` to record it as rejected." in body and "reason:" not in body

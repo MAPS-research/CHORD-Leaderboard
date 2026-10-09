@@ -51,36 +51,36 @@ def test_accept_without_any_checkpoint_fails():
 
 def test_apply_accept_writes_valid_yaml_with_todo_comments(root):
     cand = CAND.model_copy(update={"verdict": CAND.verdict.model_copy(update={"family_guess": None})})
-    body = apply("accept", _event(cand), [], root, TODAY)
+    body = apply("accept", _event(cand), root, TODAY)
     text = (root / "registry" / "models.yaml").read_text()
     assert "# TODO(sampler): fill from paper" in text and "# TODO(review): family unknown" in text
     assert [m.id for m in load_models(root / "registry" / "models.yaml")] == ["proseco-owt"]
     assert body.startswith("Added 1 entry to `registry/models.yaml`") and "`proseco-owt`" in body and "Closes" not in body
 
 
-def test_apply_reject_uses_last_reason_comment(root):
-    comments = [{"body": "reason: first"}, {"body": "looks fine"}, {"body": "Reason: trained on C4, not OWT"}]
-    apply("reject", _event(labels=("candidate", "reject")), comments, root, TODAY)
+def test_apply_reject_records_the_candidate_without_a_reason_comment(root):
+    summary = apply("reject", _event(labels=("candidate", "reject")), root, TODAY)
     text = (root / "registry" / "rejected.yaml").read_text()
     assert text.startswith("# Rejected candidates")
     [r] = load_rejected(root / "registry" / "rejected.yaml")
-    assert r.key == "arxiv:2602.11590" and r.reason == "trained on C4, not OWT" and r.source == "discovery#42"
+    assert r.key == "arxiv:2602.11590" and r.reason == "rejected by maintainer" and r.source == "discovery#42"
+    assert summary.startswith("Recorded `arxiv:2602.11590`") and "Reason" not in summary
 
 
-def test_reject_default_reason():
-    assert reject_entry(CAND, 42, TODAY, comments=[]).reason == "rejected by maintainer"
+def test_reject_entry_needs_no_comments():
+    assert reject_entry(CAND, 42, TODAY).reason == "rejected by maintainer"
 
 
 def test_broken_issue_body_fails_without_touching_files(root):
     before = (root / "registry" / "models.yaml").read_text()
     with pytest.raises(ValueError, match="json candidate"):
-        apply("accept", _event(body="I edited this issue and removed the block"), [], root, TODAY)
+        apply("accept", _event(body="I edited this issue and removed the block"), root, TODAY)
     assert (root / "registry" / "models.yaml").read_text() == before
 
 
 def test_non_candidate_issue_is_refused(root):
     with pytest.raises(ValueError, match="candidate"):
-        apply("accept", _event(labels=("accept",)), [], root, TODAY)
+        apply("accept", _event(labels=("accept",)), root, TODAY)
 
 
 def test_accept_fills_group_from_the_generation_type():
@@ -91,7 +91,7 @@ def test_accept_fills_group_from_the_generation_type():
 
 
 def test_accept_with_unclear_type_leaves_group_for_the_reviewer(root):
-    body = apply("accept", _event(), [], root, TODAY)
+    body = apply("accept", _event(), root, TODAY)
     text = (root / "registry" / "models.yaml").read_text()
     [e] = load_models(root / "registry" / "models.yaml")
     assert e.group is None and "# TODO(review): generation type unclear" in text

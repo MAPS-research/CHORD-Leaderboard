@@ -20,7 +20,7 @@ listed and rejected models, the cluster jobs that sample and score them, and the
 2. **Review.** A candidate confirmed as OpenWebText-trained, with an official GitHub repository, gets its own
    issue labelled `candidate`. Everything less certain goes into one `candidate-digest` issue per run.
    Candidates judged in an earlier run are not judged again.
-3. **Decision.** Label a candidate issue `accept`, or comment `reason: <why>` and label it `reject`.
+3. **Decision.** Label a candidate issue `accept` or `reject`.
    `apply-decision.yml` writes the change to `registry/models.yaml` or `registry/rejected.yaml`, commits it
    to `main`, comments on the issue with what changed, and closes it. To fix a field afterwards, edit the
    registry directly. Duplicates and digests can simply be closed.
@@ -38,7 +38,7 @@ listed and rejected models, the cluster jobs that sample and score them, and the
   (for example `355M`), `paper.published` (first arXiv version) and either `paper.arxiv` or `paper.url`,
   plus a matching file in `results/`. The build fails if a scored entry has no results or a results file
   has no scored entry.
-- `registry/rejected.yaml`: rejected papers and models, with the reason.
+- `registry/rejected.yaml`: rejected papers and models.
 - `results/<id>.json`: fold scores for a scored entry; `results/human-heldout.json` is the held-out human
   reference row. Mean and standard deviation are checked against the folds at build time.
 

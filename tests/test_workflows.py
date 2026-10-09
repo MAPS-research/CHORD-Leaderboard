@@ -35,6 +35,7 @@ def test_apply_decision_commits_to_main_and_closes_the_issue():
     assert "gh pr create" not in scripts
     assert 'git push origin "HEAD:$BASE"' in scripts
     assert "gh issue close" in scripts and "--summary-out summary.md" in scripts
+    assert "comments" not in scripts  # a reject label needs no reason comment
 
 
 def test_no_untrusted_expressions_inside_run_scripts():

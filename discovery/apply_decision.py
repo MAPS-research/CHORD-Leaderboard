@@ -13,7 +13,7 @@ SAMPLER_TODO = "sampler: null  # TODO(sampler): fill from paper"
 FAMILY_TODO = "  # TODO(review): family unknown, set before merging"
 GROUP_TODO = "group: null  # TODO(review): generation type unclear; set ar, discrete or continuous"
 DEFAULT_FAMILY = "masked-dlm"
-_REASON = re.compile(r"^\s*reason:\s*(.+)", re.IGNORECASE | re.DOTALL)
+REJECT_REASON = "rejected by maintainer"
 
 
 def _slug(text: str) -> str:
@@ -56,9 +56,8 @@ def accept_entries(cand: Candidate, issue_number: int, today: date, taken: set[s
     return out
 
 
-def reject_entry(cand: Candidate, issue_number: int, today: date, comments: list[dict]) -> RejectedEntry:
-    reasons = [m.group(1).strip() for c in comments if (m := _REASON.match(c.get("body") or ""))]
-    return RejectedEntry(key=cand.key, name=cand.title or cand.key, reason=reasons[-1] if reasons else "rejected by maintainer",
+def reject_entry(cand: Candidate, issue_number: int, today: date) -> RejectedEntry:
+    return RejectedEntry(key=cand.key, name=cand.title or cand.key, reason=REJECT_REASON,
                          decided=today, source=f"discovery#{issue_number}")
 
 
@@ -78,7 +77,7 @@ def _entry_yaml(entry: RegistryEntry, family_known: bool) -> str:
     return text
 
 
-def apply(action: str, event: dict, comments: list[dict], root: Path, today: date) -> str:
+def apply(action: str, event: dict, root: Path, today: date) -> str:
     issue = event["issue"]
     number = issue["number"]
     if "candidate" not in {label["name"] for label in issue.get("labels", [])}:
@@ -102,7 +101,7 @@ def apply(action: str, event: dict, comments: list[dict], root: Path, today: dat
                 "`sampler` is filled when it is sampled.")
     if action == "reject":
         path = reg / "rejected.yaml"
-        entry = reject_entry(cand, number, today, comments)
+        entry = reject_entry(cand, number, today)
         backup = path.read_text(encoding="utf-8") if path.exists() else ""
         _append(path, render_yaml_block([entry.model_dump(mode="json")]))
         try:
@@ -110,5 +109,5 @@ def apply(action: str, event: dict, comments: list[dict], root: Path, today: dat
         except Exception:
             path.write_text(backup, encoding="utf-8")
             raise
-        return f"Recorded `{entry.key}` in `registry/rejected.yaml`.\n\nReason: {entry.reason}"
+        return f"Recorded `{entry.key}` in `registry/rejected.yaml`."
     raise ValueError(f"Unknown action {action!r}; expected accept or reject.")

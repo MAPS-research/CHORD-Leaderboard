@@ -19,7 +19,7 @@
 - {id: sedd-small, name: SEDD-small, paper: {arxiv: "2310.16834", venue: ICML 2024, published: 2023-10-25}, github: "https://github.com/louaaron/Score-Entropy-Discrete-Diffusion",
    checkpoint: {kind: hf, ref: louaaron/sedd-small}, params: 170M, group: discrete, family: masked-dlm, train_data: owt, tokenizer: gpt2, in_paper: true, status: scored, added: 2026-10-08, source: seed}
 - {id: sedd-medium, name: SEDD-medium, paper: {arxiv: "2310.16834", venue: ICML 2024, published: 2023-10-25}, github: "https://github.com/louaaron/Score-Entropy-Discrete-Diffusion",
-   checkpoint: {kind: hf, ref: louaaron/sedd-medium}, family: masked-dlm, train_data: owt, tokenizer: gpt2, status: queued, added: 2026-10-08, source: seed}
+   checkpoint: {kind: hf, ref: louaaron/sedd-medium}, params: 424M, group: discrete, family: masked-dlm, train_data: owt, tokenizer: gpt2, status: scored, added: 2026-10-08, source: seed}
 - {id: radd-lambda-dce-medium, name: RADD medium (λ-DCE), paper: {arxiv: "2406.03736", published: 2024-06-06}, github: "https://github.com/ML-GSAI/RADD",
    checkpoint: {kind: hf, ref: JingyangOu/radd-lambda-dce-medium}, family: masked-dlm, params: 405M, train_data: owt, tokenizer: gpt2, sampler: {note: "Tweedie tau-leaping, log-linear schedule, 1024 steps, fp64 Gumbel, no top-p/top-k (paper App. J.3)"}, status: excluded, added: 2026-10-08, source: seed}
 - {id: duo-distilled, name: Duo (DCD), paper: {arxiv: "2506.10892", venue: ICML 2025, published: 2025-06-12}, github: "https://github.com/s-sahoo/duo",

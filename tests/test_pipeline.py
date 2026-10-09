@@ -200,3 +200,41 @@ def test_judge_calls_run_concurrently_and_keep_order(root, stubs, monkeypatch):
     summary, _ = run(cfg, _deps(FakeGitHub()), root=root, since=SINCE, dry_run=True, no_dedupe=True)
     assert _time.monotonic() - start < 0.8  # 4 candidates x 0.3 s would take 1.2 s sequentially
     assert summary.reported == ["arxiv:2609.00001", "arxiv:2406.07524", "arxiv:2609.00009", "arxiv:2609.00002"]
+
+
+TODAY = date(2026, 10, 8)
+
+
+def test_seen_candidates_are_skipped_and_remembered(root, stubs):
+    seen = {"arxiv:2609.00001": date(2026, 10, 1), "arxiv:2501.00001": date(2025, 1, 5)}
+    summary, _ = run(CFG, _deps(FakeGitHub()), root=root, since=SINCE, dry_run=False, no_dedupe=False, seen=seen, today=TODAY)
+    assert stubs["judged"] == ["2609.00002"] and summary.skipped_seen == 1
+    assert summary.judged_on == {"arxiv:2609.00001": date(2026, 10, 1), "arxiv:2609.00002": TODAY}
+
+
+def test_judge_failures_are_not_remembered(root, stubs, monkeypatch):
+    monkeypatch.setattr(pipeline.judge, "judge", lambda llm, m, c, sleep: c.model_copy(update={"judge_error": "JudgeError: x"}))
+    summary, _ = run(CFG, _deps(FakeGitHub()), root=root, since=SINCE, dry_run=False, no_dedupe=False, today=TODAY)
+    assert summary.judged_on == {}
+
+
+def test_unclear_candidates_go_into_one_digest_issue(root, stubs, monkeypatch):
+    def judge_one_unclear(llm, model, c, sleep):
+        value = "yes" if c.arxiv_id == "2609.00001" else "unclear"
+        return c.model_copy(update={"verdict": Verdict(owt_trained=Judgement(value=value))})
+
+    monkeypatch.setattr(pipeline.judge, "judge", judge_one_unclear)
+    gh = FakeGitHub()
+    summary, _ = run(CFG, _deps(gh), root=root, since=SINCE, dry_run=False, no_dedupe=False, today=TODAY)
+    assert summary.reported == ["arxiv:2609.00001"] and summary.digested == ["arxiv:2609.00002"]
+    assert gh.created == ["[candidate] A diffusion language model (arXiv:2609.00001)",
+                          "[digest] 1 unclear candidates (run of 2026-10-08)"]
+    assert summary.opened == [101] and summary.digest_issue == 102
+
+
+def test_dry_run_opens_no_digest(root, stubs, monkeypatch):
+    monkeypatch.setattr(pipeline.judge, "judge", lambda llm, m, c, sleep: c.model_copy(
+        update={"verdict": Verdict(owt_trained=Judgement(value="unclear"))}))
+    gh = FakeGitHub()
+    summary, _ = run(CFG, _deps(gh), root=root, since=SINCE, dry_run=True, no_dedupe=False, today=TODAY)
+    assert gh.created == [] and summary.digest_issue is None and len(summary.digested) == 2

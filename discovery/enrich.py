@@ -7,7 +7,8 @@ from discovery.http import github_headers, raise_if_rate_limited, request_with_r
 from discovery.keys import github_key, normalize_github
 from discovery.models import Candidate, Weight
 
-HF_API = "https://huggingface.co/api"
+HF_WEB = "https://huggingface.co"
+HF_API = f"{HF_WEB}/api"
 GITHUB_API = "https://api.github.com"
 
 _TAIL = r"[^\s)\"'<>\]]+"
@@ -80,6 +81,11 @@ def _fetch_readme(client, repo_url: str, sleep) -> str | None:
     return resp.text if resp.status_code == 200 else None
 
 
+def _fetch_model_card(client, ref: str, sleep) -> str | None:
+    resp = request_with_retry(client, "GET", f"{HF_WEB}/{ref}/raw/main/README.md", sleep=sleep)
+    return resp.text if resp.status_code == 200 else None
+
+
 def _unique_repos(repos: list[str]) -> list[str]:
     out: dict[str, str] = {}
     for r in repos:
@@ -100,6 +106,9 @@ def enrich(client, cand: Candidate, max_readme_chars: int, sleep=time.sleep) -> 
         if (text := _fetch_readme(client, repo, sleep)) is not None:
             readme, readme_repo = text[:max_readme_chars], repo
             break
+    if not readme and (hf_ref := next((w.ref for w in weights if w.kind == "hf"), None)):
+        if (card := _fetch_model_card(client, hf_ref, sleep)) is not None:  # HF-only models: the card is the only text
+            readme, readme_repo = card[:max_readme_chars], f"{HF_WEB}/{hf_ref}"
     if readme:
         weights += extract_weight_links(readme) + _collection_models(client, readme, sleep)
     merged = cand.model_copy(update={"repos": repos, "readme": readme, "readme_repo": readme_repo, "weights": []})

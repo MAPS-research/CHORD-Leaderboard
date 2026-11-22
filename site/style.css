@@ -115,4 +115,3 @@ tr.human td { font-weight: 600; }
   .header-nav { gap: 2px; font-size: 0.85rem; }
   .header-nav :is(a:not(.btn), span) { padding: 6px 8px; }
 }
-.ckpt { overflow-wrap: anywhere; }

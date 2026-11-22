@@ -55,3 +55,7 @@ def test_both_pages_share_the_site_header():
     assert [text for _, text in main] == labels and [text for _, text in changelog] == labels
     assert ("current", "Leaderboard") in main and ("link", "Changelog") in main
     assert ("link", "Leaderboard") in changelog and ("current", "Changelog") in changelog
+
+
+def test_main_page_has_no_checkpoints_section():
+    assert "ckpt" not in (SITE / "index.html").read_text() and "ckpt" not in (SITE / "app.js").read_text()

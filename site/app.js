@@ -35,16 +35,6 @@ function renderPending() {
     : '<tr><td class="status" colspan="4">No generators are waiting for evaluation.</td></tr>';
 }
 
-const byName = (a, b) => a.name.localeCompare(b.name, "en", { numeric: true });
-const ckptRow = m => `<tr><td>${esc(m.name)}${tag(m)}</td>
-  <td class="links ckpt"><a href="${esc(m.checkpoint.url)}">${esc(m.checkpoint.label)}</a></td></tr>`;
-
-function renderCheckpoints() {
-  const pending = setting === "unconditional" ? data.pending || [] : [];
-  const rows = [...board().generators, ...pending].sort(byName);
-  document.getElementById("ckpt-rows").innerHTML = rows.map(ckptRow).join("");
-}
-
 function render() {
   const pool = board().generators.filter(m => group === "all" || m.group === group);
   const rankOf = new Map([...pool].sort(cmp.mean).map((m, i) => [m.id, i + 1]));  // rank within the selected type
@@ -67,7 +57,7 @@ document.querySelectorAll(".setting").forEach(b => b.addEventListener("click", (
   if (b.dataset.setting === setting) return;
   setting = b.dataset.setting;
   group = "all";  // the boards hold different types, so start each one unfiltered
-  if (data) { render(); renderCheckpoints(); }
+  if (data) render();
 }));
 document.getElementById("settings-toggle").addEventListener("click", e => {
   const info = document.getElementById("settings-info");
@@ -84,10 +74,8 @@ fetch("data/leaderboard.json", { cache: "no-cache" })
     t.textContent = fmtDate(d.last_modified);
     render();
     renderPending();
-    renderCheckpoints();
   })
   .catch(() => {
     document.getElementById("rows").innerHTML = '<tr><td class="status" colspan="6">Could not load the leaderboard data.</td></tr>';
     document.getElementById("pending-rows").innerHTML = '<tr><td class="status" colspan="4">Could not load the leaderboard data.</td></tr>';
-    document.getElementById("ckpt-rows").innerHTML = '<tr><td class="status" colspan="2">Could not load the leaderboard data.</td></tr>';
   });

@@ -1,0 +1,13 @@
+{
+  "id": "gemma3-4b-pt",
+  "setting": "continuation-dclm",
+  "encoder": "qwen35-27b-prompteol-coherence-l62",
+  "metric": "rbf_mmd2_x100_biased",
+  "n_folds": 10,
+  "samples_per_fold": 500,
+  "folds": null,
+  "mean": 11.62,
+  "std": 1.09,
+  "scored_on": "2026-11-14",
+  "source": "CHORD paper, rebuttal revision, Appendix K Table tab:dclm-continuation (per-fold scores not retained)"
+}

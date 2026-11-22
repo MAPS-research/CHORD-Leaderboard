@@ -1,0 +1,52 @@
+# Prefix-continuation board (DCLM-baseline): one entry per evaluated generator.
+# Added 2026-11-22 from the CHORD paper's rebuttal revision (Appendix K, Table tab:dclm-continuation).
+# Not limited to OpenWebText models. paper.published: first arXiv version, or official release when there is
+# no arXiv paper (GPT-2, Qwen3.5, Mistral-Small-3.1). Scores live in results/continuation-dclm/<id>.json.
+
+# --- AR ---
+- {id: gemma3-27b-pt, name: "Gemma-3-27B-pt", group: ar, params: 27B, paper: {arxiv: "2503.19786", published: 2025-03-25},
+   github: "https://github.com/google-deepmind/gemma", checkpoint: {kind: hf, ref: google/gemma-3-27b-pt}, added: 2026-11-22}
+- {id: mistral31-24b-base, name: "Mistral-Small-3.1-24B-Base", group: ar, params: 24B, paper: {url: "https://mistral.ai/news/mistral-small-3-1", published: 2025-03-17},
+   github: "https://github.com/mistralai/mistral-inference", checkpoint: {kind: hf, ref: mistralai/Mistral-Small-3.1-24B-Base-2503}, added: 2026-11-22}
+- {id: qwen35-27b, name: "Qwen3.5-27B", group: ar, params: 27B, paper: {url: "https://qwen.ai/blog?id=qwen3.5", published: 2026-02-24},
+   github: "https://github.com/QwenLM/Qwen3.5", checkpoint: {kind: hf, ref: Qwen/Qwen3.5-27B}, added: 2026-11-22}
+- {id: dclm-7b, name: "DCLM-7B", group: ar, params: 7B, paper: {arxiv: "2406.11794", published: 2024-06-17},
+   github: "https://github.com/mlfoundations/dclm", checkpoint: {kind: hf, ref: apple/DCLM-7B}, added: 2026-11-22}
+- {id: llama31-8b, name: "Llama-3.1-8B", group: ar, params: 8B, paper: {arxiv: "2407.21783", published: 2024-07-31},
+   github: "https://github.com/meta-llama/llama-models", checkpoint: {kind: hf, ref: meta-llama/Llama-3.1-8B}, added: 2026-11-22}
+- {id: qwen35-9b-base, name: "Qwen3.5-9B-Base", group: ar, params: 9B, paper: {url: "https://qwen.ai/blog?id=qwen3.5", published: 2026-03-02},
+   github: "https://github.com/QwenLM/Qwen3.5", checkpoint: {kind: hf, ref: Qwen/Qwen3.5-9B-Base}, added: 2026-11-22}
+- {id: gemma3-4b-pt, name: "Gemma-3-4B-pt", group: ar, params: 4B, paper: {arxiv: "2503.19786", published: 2025-03-25},
+   github: "https://github.com/google-deepmind/gemma", checkpoint: {kind: hf, ref: google/gemma-3-4b-pt}, added: 2026-11-22}
+- {id: qwen35-4b-base, name: "Qwen3.5-4B-Base", group: ar, params: 4B, paper: {url: "https://qwen.ai/blog?id=qwen3.5", published: 2026-03-02},
+   github: "https://github.com/QwenLM/Qwen3.5", checkpoint: {kind: hf, ref: Qwen/Qwen3.5-4B-Base}, added: 2026-11-22}
+- {id: dclm-1b, name: "DCLM-1B", group: ar, params: 1.4B, paper: {arxiv: "2406.11794", published: 2024-06-17},
+   github: "https://github.com/mlfoundations/dclm", checkpoint: {kind: hf, ref: TRI-ML/DCLM-1B}, added: 2026-11-22}
+- {id: ministral3-3b-base, name: "Ministral-3-3B-Base", group: ar, params: 3B, paper: {arxiv: "2601.08584", published: 2026-01-13},
+   github: "https://github.com/mistralai/mistral-inference", checkpoint: {kind: hf, ref: mistralai/Ministral-3-3B-Base-2512}, added: 2026-11-22}
+- {id: smollm2-1.7b, name: "SmolLM2-1.7B", group: ar, params: 1.7B, paper: {arxiv: "2502.02737", published: 2025-02-04},
+   github: "https://github.com/huggingface/smollm", checkpoint: {kind: hf, ref: HuggingFaceTB/SmolLM2-1.7B}, added: 2026-11-22}
+- {id: qwen35-2b-base, name: "Qwen3.5-2B-Base", group: ar, params: 2B, paper: {url: "https://qwen.ai/blog?id=qwen3.5", published: 2026-03-02},
+   github: "https://github.com/QwenLM/Qwen3.5", checkpoint: {kind: hf, ref: Qwen/Qwen3.5-2B-Base}, added: 2026-11-22}
+- {id: qwen35-0.8b-base, name: "Qwen3.5-0.8B-Base", group: ar, params: 0.8B, paper: {url: "https://qwen.ai/blog?id=qwen3.5", published: 2026-03-02},
+   github: "https://github.com/QwenLM/Qwen3.5", checkpoint: {kind: hf, ref: Qwen/Qwen3.5-0.8B-Base}, added: 2026-11-22}
+- {id: gpt2-large, name: "GPT-2-large", group: ar, params: 774M, paper: {url: "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf", published: 2019-02-14},
+   github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2-large}, added: 2026-11-22}
+- {id: gpt2-medium, name: "GPT-2-medium", group: ar, params: 355M, paper: {url: "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf", published: 2019-02-14},
+   github: "https://github.com/openai/gpt-2", checkpoint: {kind: hf, ref: openai-community/gpt2-medium}, added: 2026-11-22}
+
+# --- Discrete diffusion ---
+- {id: dream-7b, name: "Dream-7B", group: discrete, params: 7B, paper: {arxiv: "2508.15487", published: 2025-08-21},
+   github: "https://github.com/DreamLM/Dream", checkpoint: {kind: hf, ref: Dream-org/Dream-v0-Base-7B}, added: 2026-11-22}
+- {id: llada-8b, name: "LLaDA-8B", group: discrete, params: 8B, paper: {arxiv: "2502.09992", published: 2025-02-14},
+   github: "https://github.com/ML-GSAI/LLaDA", checkpoint: {kind: hf, ref: GSAI-ML/LLaDA-8B-Base}, added: 2026-11-22}
+- {id: smdm, name: "SMDM", group: discrete, params: 1.1B, paper: {arxiv: "2410.18514", published: 2024-10-24},
+   github: "https://github.com/ML-GSAI/SMDM", checkpoint: {kind: hf, ref: nieshen/SMDM, path: mdm-1028M-1600e18.safetensors}, added: 2026-11-22}
+- {id: sedd-small, name: "SEDD-small", group: discrete, params: 170M, paper: {arxiv: "2310.16834", published: 2023-10-25},
+   github: "https://github.com/louaaron/Score-Entropy-Discrete-Diffusion", checkpoint: {kind: hf, ref: louaaron/sedd-small}, added: 2026-11-22}
+- {id: mdlm-owt, name: "MDLM", group: discrete, params: 170M, paper: {arxiv: "2406.07524", published: 2024-06-11},
+   github: "https://github.com/kuleshov-group/mdlm", checkpoint: {kind: hf, ref: kuleshov-group/mdlm-owt}, added: 2026-11-22}
+
+# --- Continuous diffusion ---
+- {id: tess2, name: "TESS 2", group: continuous, params: 7B, paper: {arxiv: "2502.13917", published: 2025-02-19},
+   github: "https://github.com/hamishivi/tess-2", checkpoint: {kind: hf, ref: hamishivi/tess2-v0.3-base}, added: 2026-11-22}

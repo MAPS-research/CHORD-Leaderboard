@@ -36,6 +36,15 @@ Anyone can ask for a generator to be evaluated (or evaluated sooner) with the [m
 - `registry/rejected.yaml`: rejected papers and models.
 - `results/<id>.json`: fold scores for a scored entry; `results/human-heldout.json` is the held-out human
   reference row. Mean and standard deviation are checked against the folds at build time.
+- `registry/continuation.yaml` and `results/continuation-dclm/<id>.json`: the prefix-continuation board
+  (DCLM-baseline, 128-token prefixes, continuations cut to 800 GPT-2 tokens, 10 folds of 500). Its generators
+  are not limited to OpenWebText models and do not go through discovery. Each entry needs `group`, `params`,
+  `paper.published` and `paper.arxiv` or `paper.url`; `results/continuation-dclm/human-heldout.json` is the
+  held-out human row. Every results file must name `setting: continuation-dclm`, the 27B CHORD encoder and the
+  biased RBF-MMD² ×100 metric, with `n_folds` of at least 2. A file (the human row included) may leave `folds`
+  empty and give `mean`, `std` and a `source` instead; the current rows come from the CHORD paper's rebuttal
+  table (Appendix K) because the per-fold scores were not kept. When `folds` are given, their count must equal
+  `n_folds` and mean/std are checked against them.
 
 To add a scored model: sample and score it with the cluster jobs, run `scoring/export_results.py`, copy
 the new `results/*.json` here, set the entry's `status: scored` and site fields, and push.

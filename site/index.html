@@ -40,12 +40,16 @@
   <div class="intro-inner">
     <h2 id="intro-title">Introduction</h2>
     <p>Existing metrics for open-ended text generation measure likelihood, lexical diversity, or distributional similarity in generic representation space, yet they can miss fundamental dimensions of quality. A prominent blind spot is global coherence: a generated passage may be locally fluent while remaining globally contradictory, causally inconsistent, or topically disconnected.</p>
-    <p><b>CHORD</b> (<b>C</b>oherence-aware <b>H</b>idden-state <b>O</b>pen-generation <b>R</b>eference <b>D</b>istance) is a coherence-sensitive distributional metric. CHORD encodes generated and human-written corpora in the hidden-state space of a frozen LLM using a coherence-eliciting prompt, and compares the resulting distributions using MMD with an RBF kernel. This leaderboard ranks generators by their CHORD distance to the human reference on unconditional generation on OpenWebText; lower is closer. Generators are tagged as AR, discrete diffusion/flow, or continuous diffusion/flow, and can be ranked within each type.</p>
+    <p><b>CHORD</b> (<b>C</b>oherence-aware <b>H</b>idden-state <b>O</b>pen-generation <b>R</b>eference <b>D</b>istance) is a coherence-sensitive distributional metric. CHORD encodes generated and human-written corpora in the hidden-state space of a frozen LLM using a coherence-eliciting prompt, and compares the resulting distributions using MMD with an RBF kernel. This leaderboard ranks generators by their CHORD distance to the human reference in two settings, unconditional generation on OpenWebText and prefix continuation on DCLM-baseline; lower is closer. Generators are tagged as AR, discrete diffusion/flow, or continuous diffusion/flow, and can be ranked within each type.</p>
   </div>
 </section>
 
 <section class="leaderboard" aria-labelledby="board-title">
   <h2 id="board-title">Leaderboard</h2>
+  <div class="settings-switch" role="group" aria-label="Evaluation setting">
+    <button type="button" class="setting" data-setting="unconditional" aria-pressed="true">Unconditional <small>(OpenWebText)</small></button>
+    <button type="button" class="setting" data-setting="continuation" aria-pressed="false">Prefix continuation <small>(DCLM)</small></button>
+  </div>
   <div class="tabs" role="tablist" aria-label="Generator type">
     <button type="button" class="tab" role="tab" data-group="all" aria-selected="true">All</button>
     <button type="button" class="tab" role="tab" data-group="ar" aria-selected="false">AR</button>
@@ -67,17 +71,27 @@
       <tbody id="rows"><tr><td class="status" colspan="6">Loading…</td></tr></tbody>
     </table>
   </div>
-  <p class="tab-note">We report mean±std over 10 non-overlapping sample sets, each containing 500 samples of 512 tokens. CHORD reports RBF-MMD² (×10⁻²). Released: first arXiv version of the generator's paper (GPT-2: OpenAI release).</p>
+  <p class="tab-note" data-setting="unconditional">We report mean±std over 10 non-overlapping sample sets, each containing 500 samples of 512 tokens. CHORD reports RBF-MMD² (×10⁻²). Released: first arXiv version of the generator's paper (GPT-2: OpenAI release).</p>
+  <p class="tab-note" data-setting="continuation" hidden>We report mean±std over 10 non-overlapping sample sets, each containing the continuations of 500 prefixes, truncated to 800 tokens. CHORD reports RBF-MMD² (×10⁻²). Released: first arXiv version of the generator's paper (GPT-2, Qwen3.5 and Mistral-Small-3.1: official release). The generators are not limited to OpenWebText models.</p>
   <button type="button" class="settings-button" id="settings-toggle" aria-expanded="false" aria-controls="settings-info">evaluation settings</button>
   <div class="settings-info" id="settings-info" hidden>
+    <div data-setting="unconditional">
     Setting: unconditional generation on OpenWebText.
     <br>Each sample set: 500 samples of 512 tokens; 10 non-overlapping sample sets per generator.
     <br>Encoder: Qwen3.5-27B, coherence-eliciting prompt; distance: MMD with an RBF kernel.
     <br>Held-out human (packed): held-out human text from the same source, scored like a generator.
+    </div>
+    <div data-setting="continuation" hidden>
+    Setting: prefix continuation on DCLM-baseline-1.0. Each generator continues the same 128-token human prefixes.
+    <br>Each sample set: continuations of 500 prefixes, truncated to their first 800 GPT-2 tokens; 10 non-overlapping sample sets per generator.
+    <br>Reference: held-out human continuations of other documents.
+    <br>Encoder: Qwen3.5-27B, coherence-eliciting prompt; distance: MMD with an RBF kernel.
+    <br>Held-out human: the human continuations of the same prefixes, scored like a generator.
+    </div>
   </div>
 </section>
 
-<section class="leaderboard pending" aria-labelledby="pending-title">
+<section class="leaderboard pending" aria-labelledby="pending-title" data-setting="unconditional">
   <h2 id="pending-title">Pending Evaluation</h2>
   <p class="pending-note">Generators found by the weekly search and accepted into the registry, not yet scored. They join the leaderboard once they are evaluated.<br>
     Want a generator evaluated, or evaluated sooner? <a href="https://github.com/MAPS-research/CHORD-Leaderboard/issues/new?template=model-request.yml">Open an issue</a>.</p>
@@ -98,7 +112,7 @@
 
 <section class="leaderboard pending" aria-labelledby="ckpt-title">
   <h2 id="ckpt-title">Checkpoints</h2>
-  <p class="pending-note">The checkpoint evaluated for each generator.</p>
+  <p class="pending-note">The checkpoint evaluated for each generator on the selected leaderboard.</p>
   <div class="table-wrap">
     <table aria-label="Checkpoints">
       <thead>

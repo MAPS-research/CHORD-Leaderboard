@@ -11,7 +11,9 @@ const cmp = {
   released: (a, b) => a.released.localeCompare(b.released),
 };
 
-let data = null, sort = { key: "mean", dir: 1 }, group = "all";
+let data = null, sort = { key: "mean", dir: 1 }, group = "all", setting = "unconditional";
+// The unconditional board is data.{human,generators}; the prefix-continuation board is data.continuation.
+const board = () => setting === "continuation" ? data.continuation : data;
 
 const humanRow = h => `<tr class="human"><td class="rank">-</td><td>${esc(h.name)}</td><td class="center score">${score(h)}</td>
   <td class="center col-params">-</td><td class="col-date">-</td><td class="col-links">-</td></tr>`;
@@ -38,16 +40,19 @@ const ckptRow = m => `<tr><td>${esc(m.name)}${tag(m)}</td>
   <td class="links ckpt"><a href="${esc(m.checkpoint.url)}">${esc(m.checkpoint.label)}</a></td></tr>`;
 
 function renderCheckpoints() {
-  const rows = [...data.generators, ...(data.pending || [])].sort(byName);
+  const pending = setting === "unconditional" ? data.pending || [] : [];
+  const rows = [...board().generators, ...pending].sort(byName);
   document.getElementById("ckpt-rows").innerHTML = rows.map(ckptRow).join("");
 }
 
 function render() {
-  const pool = data.generators.filter(m => group === "all" || m.group === group);
+  const pool = board().generators.filter(m => group === "all" || m.group === group);
   const rankOf = new Map([...pool].sort(cmp.mean).map((m, i) => [m.id, i + 1]));  // rank within the selected type
   const rows = [...pool].sort((a, b) => sort.dir * cmp[sort.key](a, b));
-  document.getElementById("rows").innerHTML = humanRow(data.human) + rows.map(m => modelRow(m, rankOf.get(m.id))).join("");
+  document.getElementById("rows").innerHTML = humanRow(board().human) + rows.map(m => modelRow(m, rankOf.get(m.id))).join("");
   document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.group === group)));
+  document.querySelectorAll(".setting").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.setting === setting)));
+  document.querySelectorAll("[data-setting]:not(.setting)").forEach(el => { el.hidden = el.dataset.setting !== setting; });
   document.querySelectorAll("th button").forEach(b =>
     b.setAttribute("aria-sort", b.dataset.key === sort.key ? (sort.dir === 1 ? "ascending" : "descending") : "none"));
 }
@@ -58,6 +63,12 @@ document.querySelectorAll("th button").forEach(b => b.addEventListener("click", 
   if (data) render();
 }));
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { group = t.dataset.group; if (data) render(); }));
+document.querySelectorAll(".setting").forEach(b => b.addEventListener("click", () => {
+  if (b.dataset.setting === setting) return;
+  setting = b.dataset.setting;
+  group = "all";  // the boards hold different types, so start each one unfiltered
+  if (data) { render(); renderCheckpoints(); }
+}));
 document.getElementById("settings-toggle").addEventListener("click", e => {
   const info = document.getElementById("settings-info");
   info.hidden = !info.hidden;

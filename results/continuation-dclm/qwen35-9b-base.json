@@ -1,0 +1,13 @@
+{
+  "id": "qwen35-9b-base",
+  "setting": "continuation-dclm",
+  "encoder": "qwen35-27b-prompteol-coherence-l62",
+  "metric": "rbf_mmd2_x100_biased",
+  "n_folds": 10,
+  "samples_per_fold": 500,
+  "folds": null,
+  "mean": 10.01,
+  "std": 0.97,
+  "scored_on": "2026-11-14",
+  "source": "CHORD paper, rebuttal revision, Appendix K Table tab:dclm-continuation (per-fold scores not retained)"
+}

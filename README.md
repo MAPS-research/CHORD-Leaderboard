@@ -3,7 +3,9 @@
 **https://maps-research.github.io/CHORD-Leaderboard/**
 
 The CHORD Leaderboard ranks open-ended text generators by their [CHORD](https://arxiv.org/abs/2609.34240)
-distance to the human reference on unconditional generation on OpenWebText; lower is closer.
+distance to the human reference; lower is closer. It has two boards: unconditional generation on OpenWebText,
+and prefix continuation on DCLM-baseline, where open AR and diffusion LLMs continue the same 128-token human
+prefixes.
 
 CHORD (**C**oherence-aware **H**idden-state **O**pen-generation **R**eference **D**istance) is a
 coherence-sensitive distributional metric. It encodes generated and human-written corpora in the hidden-state
@@ -15,7 +17,7 @@ each is evaluated at the setting its paper reports as best.
 
 Want a generator evaluated, or evaluated sooner? Open a
 [model evaluation request](https://github.com/MAPS-research/CHORD-Leaderboard/issues/new?template=model-request.yml).
-The leaderboard lists generators trained on OpenWebText with public weights and an official code repository.
+The unconditional board lists generators trained on OpenWebText with public weights and an official code repository.
 
 ## Links
 

@@ -1,4 +1,5 @@
-"""Build site/data/leaderboard.json from registry/models.yaml and results/*.json.
+"""Build site/data/leaderboard.json: the unconditional board (registry/models.yaml, results/*.json) and the
+prefix-continuation board (registry/continuation.yaml, results/continuation-dclm/*.json, see continuation.py).
 
   python -m leaderboard_site.build [--registry registry/models.yaml] [--results results] [--out site/data/leaderboard.json]
 """
@@ -6,24 +7,18 @@
 import argparse
 import json
 import re
-import statistics
 import sys
 from datetime import date
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 
-from discovery.models import Checkpoint, RegistryEntry
+from discovery.models import RegistryEntry
 from discovery.registry import REPO_ROOT, load_models
+from leaderboard_site.common import HUMAN_ID, BuildError, check_folds, checkpoint_link, paper_link, parse_params
+from leaderboard_site.continuation import build_continuation, load_entries, load_reported
 
-HUMAN_ID = "human-heldout"
 HUMAN_NAME = "Held-out human (packed)"
-TOLERANCE = 1e-3
-_PARAMS = re.compile(r"^(\d+(?:\.\d+)?)([MB])$")
-
-
-class BuildError(RuntimeError):
-    pass
 
 
 class Result(BaseModel):
@@ -40,13 +35,6 @@ class Result(BaseModel):
     scored_on: date
 
 
-def parse_params(text: str) -> int:
-    m = _PARAMS.match(text.strip())
-    if not m:
-        raise BuildError(f"cannot parse params {text!r}; use a number followed by M or B, e.g. 355M or 1.5B")
-    return round(float(m.group(1)) * (1e6 if m.group(2) == "M" else 1e9))
-
-
 def load_results(directory: Path) -> dict[str, Result]:
     out = {}
     for path in sorted(directory.glob("*.json")):
@@ -56,39 +44,12 @@ def load_results(directory: Path) -> dict[str, Result]:
             raise BuildError(f"{path.name}: invalid results file: {exc}") from exc
         if r.id != path.stem:
             raise BuildError(f"{path.name}: id is {r.id!r}; it must match the file name")
-        if len(r.folds) < 2:
-            raise BuildError(f"{path.name}: needs at least two folds")
-        mean, std = statistics.mean(r.folds), statistics.stdev(r.folds)
-        if abs(mean - r.mean) > TOLERANCE or abs(std - r.std) > TOLERANCE:
-            raise BuildError(f"{path.name}: mean/std ({r.mean}, {r.std}) do not match its folds ({mean:.4f}, {std:.4f})")
+        check_folds(path.name, r.folds, r.mean, r.std)
         out[r.id] = r
     return out
 
 
 FAMILY_GROUP = {"ar": "ar", "continuous": "continuous", "flow": "continuous"}  # every other family is discrete diffusion/flow
-
-
-def _paper_link(e: RegistryEntry) -> str | None:
-    if not e.paper:
-        return None
-    return f"https://arxiv.org/abs/{e.paper.arxiv}" if e.paper.arxiv else e.paper.url
-
-
-_HOST = {"gdrive": "Google Drive", "dropbox": "Dropbox", "zenodo": "Zenodo", "box": "Box"}
-
-
-def checkpoint_link(c: Checkpoint) -> dict:
-    """Label and URL of the evaluated checkpoint, shown in the page's Checkpoints section."""
-    if c.kind == "hf":
-        url = f"https://huggingface.co/{c.ref}" + (f"/blob/main/{c.path}" if c.path else "")
-        return {"label": c.ref + (f"/{c.path}" if c.path else ""), "url": url}
-    if c.kind == "github-release":
-        return {"label": f"GitHub release {c.ref.rstrip('/').rsplit('/', 1)[-1]}", "url": c.ref}
-    host = _HOST.get(c.kind, c.kind)
-    on_readme = "github.com" in c.ref
-    label = f"{c.path} ({host}{', linked from the README' if on_readme else ''})" if c.path else (
-        f"{host}, linked from the README" if on_readme else host)
-    return {"label": label, "url": c.ref}
 
 
 def _group(e: RegistryEntry) -> str:
@@ -100,7 +61,7 @@ def _pending(models: list[RegistryEntry]) -> list[dict]:
     rows = [{
         "id": e.id, "name": e.name, "group": _group(e), "params": e.params,
         "released": e.paper.published.isoformat() if e.paper and e.paper.published else None,
-        "paper": _paper_link(e), "code": e.github, "checkpoint": checkpoint_link(e.checkpoint),
+        "paper": paper_link(e.paper), "code": e.github, "checkpoint": checkpoint_link(e.checkpoint),
     } for e in models if e.status == "queued" and e.checkpoint.kind != "sampler"]
     rows.sort(key=lambda r: [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", r["name"].lower())])  # "block size 4" before "16"
     rows.sort(key=lambda r: r["released"] or "", reverse=True)  # newest first, unknown dates last
@@ -119,7 +80,7 @@ def build(models: list[RegistryEntry], results: dict[str, Result]) -> dict:
         raise BuildError(f"scored registry entries without results: {', '.join(missing)}")
     generators = [{
         "id": e.id, "name": e.name, "group": e.group, "params": e.params, "params_value": parse_params(e.params),
-        "released": e.paper.published.isoformat(), "paper": _paper_link(e), "code": e.github,
+        "released": e.paper.published.isoformat(), "paper": paper_link(e.paper), "code": e.github,
         "mean": round(results[e.id].mean, 4), "std": round(results[e.id].std, 4),
         "checkpoint": checkpoint_link(e.checkpoint),
     } for e in scored.values()]
@@ -136,16 +97,22 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--registry", type=Path, default=REPO_ROOT / "registry" / "models.yaml")
     ap.add_argument("--results", type=Path, default=REPO_ROOT / "results")
+    ap.add_argument("--continuation-registry", type=Path, default=REPO_ROOT / "registry" / "continuation.yaml")
+    ap.add_argument("--continuation-results", type=Path, default=REPO_ROOT / "results" / "continuation-dclm")
     ap.add_argument("--out", type=Path, default=REPO_ROOT / "site" / "data" / "leaderboard.json")
     args = ap.parse_args(argv)
     try:
         data = build(load_models(args.registry), load_results(args.results))
+        cont = build_continuation(load_entries(args.continuation_registry), load_reported(args.continuation_results))
     except BuildError as exc:
         print(f"build failed: {exc}", file=sys.stderr)
         return 1
+    data = {**data, "last_modified": max(data["last_modified"], cont["last_modified"].isoformat()),
+            "continuation": {"human": cont["human"], "generators": cont["generators"]}}
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(data, indent=2) + "\n")
-    print(f"wrote {args.out}: {len(data['generators'])} generators, {len(data['pending'])} pending, last modified {data['last_modified']}")
+    print(f"wrote {args.out}: {len(data['generators'])} generators, {len(data['pending'])} pending, "
+          f"{len(cont['generators'])} on the continuation board, last modified {data['last_modified']}")
     return 0
 
 

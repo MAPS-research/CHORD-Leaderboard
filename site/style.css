@@ -17,6 +17,7 @@
   color-scheme: light;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }  /* sections toggled by the setting switch set their own display */
 html { background: var(--bg); }
 body { background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--font-body); }
 a { color: var(--link); text-decoration: none; }
@@ -77,6 +78,13 @@ tr.human td { font-weight: 600; }
 .tag.ar { background: #e6f1fa; color: #0077b6; }
 .tag.discrete { background: #fbefe3; color: #a8521a; }
 .tag.continuous { background: #e8f4ec; color: #2c7a4b; }
+.settings-switch { justify-self: center; display: inline-flex; margin: -4px 0 22px; border: 1px solid var(--button); border-radius: 999px; overflow: hidden; }
+.setting { all: unset; cursor: pointer; white-space: nowrap; padding: 7px 18px; font: 400 0.9rem/1.4 var(--font-body); color: var(--button); transition: background-color 0.2s ease, color 0.2s ease; }
+.setting small { color: inherit; opacity: 0.7; }
+.setting + .setting { border-left: 1px solid var(--button); }
+.setting:hover { background: var(--th); }
+.setting[aria-pressed="true"] { background: var(--button); color: #ffffff; }
+.setting:focus-visible { outline: 2px solid var(--link); outline-offset: -3px; }
 .tab-note { font-size: 0.78em; color: var(--muted); margin: 12px 0 0; line-height: 1.55; }
 .settings-button { justify-self: start; font: 400 0.8em var(--font-body); color: var(--link); background: none; border: none; cursor: pointer; margin-top: 10px; padding: 0; text-decoration: underline; }
 .settings-info { font-size: 0.8em; margin-top: 10px; color: var(--heading); background: var(--th); padding: 10px; border-radius: 5px; line-height: 1.6; }
@@ -85,5 +93,6 @@ tr.human td { font-weight: 600; }
   .col-params, .col-date, .col-links { display: none; }
   .meta { display: block; }
   th, td { padding: 10px 8px; }
+  .setting { padding: 6px 12px; font-size: 0.8rem; } .setting small { display: none; }
 }
 .ckpt { overflow-wrap: anywhere; }

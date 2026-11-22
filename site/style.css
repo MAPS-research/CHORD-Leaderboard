@@ -19,10 +19,25 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }  /* sections toggled by the setting switch set their own display */
 html { background: var(--bg); }
-body { background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--font-body); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--font-body); }
 a { color: var(--link); text-decoration: none; }
 a:hover { color: var(--link-hover); text-decoration: underline; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* Site header shared by the leaderboard and changelog pages. */
+.skip-link { position: absolute; left: -9999px; top: 8px; background: var(--button); color: #ffffff; padding: 8px 14px; border-radius: 6px; z-index: 10; }
+.skip-link:focus { left: 12px; }
+
+.site-header { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 12px max(20px, calc((100% - 1100px) / 2)); background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line); }
+.brand { font: 600 1.15rem/1.2 var(--font-title); color: var(--title); white-space: nowrap; }
+.brand:hover { color: var(--title); text-decoration: none; }
+.header-nav { display: flex; align-items: center; gap: 6px; font-size: 0.92rem; }
+.header-nav :is(a:not(.btn), span) { padding: 6px 12px; border-radius: 8px; color: var(--muted); }
+.header-nav a:not(.btn):hover, .header-nav a[aria-current="page"] { color: var(--heading); background: var(--band); text-decoration: none; }
+.header-nav [aria-current="page"] { color: var(--heading); background: var(--band); font-weight: 600; cursor: default; }
+.header-nav .btn { margin-left: 6px; padding: 6px 16px; font-size: 0.92rem; }
 
 .hero { padding-inline: 20px; padding-block: 48px 40px; text-align: center; display: grid; gap: 14px; justify-items: center; }
 .hero h1 { font: 600 3rem/1.125 var(--font-title); color: var(--title); margin: 0; }
@@ -94,5 +109,10 @@ tr.human td { font-weight: 600; }
   .meta { display: block; }
   th, td { padding: 10px 8px; }
   .setting { padding: 6px 12px; font-size: 0.8rem; } .setting small { display: none; }
+  .site-header { padding-inline: 16px; }
+  .header-nav .btn { display: none; }
+  .brand { font-size: 1rem; }
+  .header-nav { gap: 2px; font-size: 0.85rem; }
+  .header-nav :is(a:not(.btn), span) { padding: 6px 8px; }
 }
 .ckpt { overflow-wrap: anywhere; }

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog · CHORD Leaderboard</title>
+<meta name="description" content="What changed on the CHORD Leaderboard: new settings, newly scored generators and fixes.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans:400,600,700&display=swap">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="changelog.css">
+</head>
+<body class="changelog-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="../">CHORD Leaderboard</a>
+  <nav class="header-nav" aria-label="Main navigation">
+    <a href="../">Leaderboard</a>
+    <span aria-current="page">Changelog</span>
+    <a class="btn" href="https://github.com/MAPS-research/CHORD"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0z"/></svg>Code</a>
+  </nav>
+</header>
+
+<div class="changelog-layout">
+  <aside class="changelog-sidebar">
+    <a class="changelog-label" href="#top">Changelog</a>
+    <nav aria-label="Updates">
+      <a href="#2026-11-22">2026-11-22</a>
+      <a href="#2026-10-10">2026-10-10</a>
+      <a href="#2026-10-09">2026-10-09</a>
+      <a href="#2026-10-08">2026-10-08</a>
+    </nav>
+  </aside>
+
+  <main id="main" class="changelog-article">
+    <h1>Changelog</h1>
+
+    <h2 id="2026-11-22">[2026-11-22]</h2>
+    <h3>TL;DR</h3>
+    <p>The leaderboard now covers prefix continuation, using the results from the ICLR rebuttal of the CHORD paper.</p>
+    <ul>
+      <li>New <a href="../">Prefix continuation (DCLM)</a> board: 21 generators continue the same 128-token DCLM-baseline prefixes.</li>
+      <li>Modern open LLMs from the Qwen3.5, Gemma-3, Mistral, Llama-3.1, DCLM and SmolLM2 families are evaluated for the first time.</li>
+      <li>Large diffusion LLMs are added: Dream-7B, LLaDA-8B, SMDM and TESS 2.</li>
+    </ul>
+    <h3>Full Changelog</h3>
+    <ul>
+      <li>Prefix continuation: A second board, chosen with the switch above the type tabs. Each generator continues the same 128-token human prefixes from DCLM-baseline-1.0; continuations are cut to their first 800 GPT-2 tokens and compared with held-out human continuations. Scores are mean±std over 10 non-overlapping sets of 500 prefixes, with the same Qwen3.5-27B CHORD encoder as the unconditional board.</li>
+      <li>New AR generators: Gemma-3-27B-pt, Gemma-3-4B-pt, Mistral-Small-3.1-24B-Base, Ministral-3-3B-Base, Qwen3.5-27B, Qwen3.5-9B-Base, Qwen3.5-4B-Base, Qwen3.5-2B-Base, Qwen3.5-0.8B-Base, Llama-3.1-8B, DCLM-7B, DCLM-1B and SmolLM2-1.7B, alongside GPT-2-large and GPT-2-medium.</li>
+      <li>New diffusion generators: Dream-7B, LLaDA-8B and SMDM (discrete), and TESS 2 (continuous), alongside SEDD-small and MDLM.</li>
+      <li>Open LLMs: The continuation board is not limited to OpenWebText models. The unconditional board still lists only generators trained on OpenWebText.</li>
+      <li>Scores: Taken from the rebuttal table of the CHORD paper (Appendix K). Gemma-3-27B-pt is closest to the human continuations (2.49); within every AR family, larger models are closer.</li>
+      <li>Page: The table notes, <b>evaluation settings</b> and <b>Checkpoints</b> follow the selected board. <b>Pending Evaluation</b> is shown with the unconditional board only, and switching boards resets the type tab to <b>All</b>.</li>
+    </ul>
+
+    <h2 id="2026-10-10">[2026-10-10]</h2>
+    <h3>TL;DR</h3>
+    <ul>
+      <li>ADLM joins the unconditional board.</li>
+      <li>ELF-L, ELF-B and ELF-M are rescored on 512-token windows, like every other generator.</li>
+    </ul>
+    <h3>Full Changelog</h3>
+    <ul>
+      <li>New generator: ADLM (adlm-large checkpoint, remdm-loop sampling with T = 4096, as in its paper's Table 3).</li>
+      <li>ELF rescoring: ELF samples are now cut to 512 GPT-2 tokens before scoring, matching the length of the human reference windows. ELF-L, ELF-B and ELF-M were rescored.</li>
+    </ul>
+
+    <h2 id="2026-10-09">[2026-10-09]</h2>
+    <h3>TL;DR</h3>
+    <p>Eight additional generators are scored, five of them discrete and three continuous diffusion/flow models.</p>
+    <h3>Full Changelog</h3>
+    <ul>
+      <li>New discrete diffusion/flow generators: Duo (DCD), Duo++ (Ψ-samplers), SEDD-medium, GIDD+ base (p_u = 0.2) and BD3-LM (block size 4).</li>
+      <li>New continuous diffusion/flow generators: PLAID 1B, SSD-LM and ELF-M-T5Gemma2 (distilled).</li>
+      <li>Icons: Added a favicon and an Apple touch icon.</li>
+    </ul>
+
+    <h2 id="2026-10-08">[2026-10-08]</h2>
+    <h3>TL;DR</h3>
+    <p>Initial release of the CHORD Leaderboard.</p>
+    <ul>
+      <li>Open-ended text generators trained on OpenWebText, ranked by CHORD distance to the human reference on unconditional generation.</li>
+      <li>Generators are tagged as AR, discrete diffusion/flow or continuous diffusion/flow, and can be ranked within each type.</li>
+      <li>A weekly search finds new OpenWebText generators, and anyone can request an evaluation.</li>
+    </ul>
+    <h3>Full Changelog</h3>
+    <ul>
+      <li>Launch generators: the six from the CHORD paper (GPT-2-medium, GPT-2-large, MDLM, SEDD-small, LangFlow and ELF-L), then GPT-2-small, GPT-2-XL, ELF-B and ELF-M the same day. The held-out human row scores held-out human text from the same source like a generator.</li>
+      <li>Protocol: 10 non-overlapping sets of 500 unconditional samples of 512 tokens per generator, scored with the 27B CHORD encoder (Qwen3.5-27B) against the paper's human reference. Each generator is evaluated at the setting its paper reports as best.</li>
+      <li>Discovery: Every Monday, new arXiv papers and Hugging Face models are checked for OpenWebText training, public weights and an official repository. Accepted candidates appear under <b>Pending Evaluation</b> until they are scored.</li>
+      <li>Requests: The <a href="https://github.com/MAPS-research/CHORD-Leaderboard/issues/new?template=model-request.yml">model evaluation request</a> form asks for a generator to be evaluated, or evaluated sooner.</li>
+      <li>Checkpoints: The bottom of the page lists the exact checkpoint evaluated for each generator.</li>
+    </ul>
+
+    <a class="changelog-source" href="https://github.com/MAPS-research/CHORD-Leaderboard/blob/main/site/changelog/index.html">View this page on GitHub</a>
+  </main>
+</div>
+</body>
+</html>

@@ -37,7 +37,7 @@ jobs:
       - name: Build leaderboard data
         run: python -m leaderboard_site.build
       - name: Stamp asset links with the commit so browsers fetch the new files
-        run: sed -i "s/app\.js\"/app.js?v=${GITHUB_SHA::7}\"/; s/style\.css\"/style.css?v=${GITHUB_SHA::7}\"/" site/index.html
+        run: sed -i "s/app\.js\"/app.js?v=${GITHUB_SHA::7}\"/; s/style\.css\"/style.css?v=${GITHUB_SHA::7}\"/; s/changelog\.css\"/changelog.css?v=${GITHUB_SHA::7}\"/" site/index.html site/changelog/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

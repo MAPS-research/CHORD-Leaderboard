@@ -49,6 +49,10 @@ Anyone can ask for a generator to be evaluated (or evaluated sooner) with the [m
 To add a scored model: sample and score it with the cluster jobs, run `scoring/export_results.py`, copy
 the new `results/*.json` here, set the entry's `status: scored` and site fields, and push.
 
+The website's changelog is `site/changelog/index.html` (linked next to "Last modified"). Add a dated entry,
+newest first and listed in the sidebar, whenever a setting, a scored generator or a visible fix lands;
+`tests/test_site_changelog.py` fails if a scored generator on either board is not mentioned there.
+
 ## Running locally
 
 ```bash

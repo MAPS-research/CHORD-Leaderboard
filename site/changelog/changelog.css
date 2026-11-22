@@ -1,0 +1,38 @@
+/* Changelog page: a sticky list of updates on the left and the entries on the right, newest first.
+   Uses the palette and fonts of ../style.css. */
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.changelog-layout { width: min(1100px, calc(100% - 64px)); margin: 64px auto 96px; display: grid;
+  grid-template-columns: 210px minmax(0, 720px); gap: 68px; align-items: start; }
+.changelog-sidebar { position: sticky; top: 96px; font-size: 14px; max-height: calc(100svh - 128px); overflow-y: auto; }
+.changelog-label { display: block; margin: 0 12px 16px; color: var(--heading); font-weight: 600; }
+.changelog-label:hover { color: var(--heading); text-decoration: none; }
+.changelog-sidebar nav { display: grid; gap: 4px; }
+.changelog-sidebar nav a { padding: 8px 12px; border-radius: 8px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.changelog-sidebar nav a:hover { color: var(--heading); background: var(--band); text-decoration: none; }
+
+.changelog-article { min-width: 0; font-size: 16px; line-height: 1.8; }
+.changelog-article h1 { font: 600 clamp(32px, 4vw, 44px)/1.15 var(--font-title); color: var(--title); margin: 0 0 24px; }
+.changelog-article h2 { font: 600 24px/1.3 var(--font-title); color: var(--heading); letter-spacing: -0.02em; margin: 40px 0 16px;
+  padding-top: 28px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.changelog-article h3 { font: 600 19px/1.3 var(--font-title); color: var(--heading); margin: 28px 0 12px; }
+.changelog-article :is(h1, h2, h3) { scroll-margin-top: 88px; }
+.changelog-article p { margin: 0 0 18px; }
+.changelog-article ul { padding-left: 24px; margin: 0 0 20px; color: #444444; }
+.changelog-article li + li { margin-top: 8px; }
+.changelog-article b { color: var(--ink); font-weight: 600; }
+.changelog-article a:not(.changelog-source) { color: var(--ink); text-decoration: underline; text-decoration-color: #c8c8c8; text-underline-offset: 4px; }
+.changelog-article a:not(.changelog-source):hover { text-decoration-color: currentColor; }
+.changelog-source { display: inline-block; margin-top: 36px; font-size: 12px; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .changelog-layout { gap: 32px; grid-template-columns: 180px minmax(0, 1fr); }
+}
+@media (max-width: 680px) {
+  .changelog-layout { width: calc(100% - 40px); display: block; margin-top: 32px; }
+  .changelog-sidebar { position: static; max-height: none; border-bottom: 1px solid var(--line); padding-bottom: 22px; margin-bottom: 32px; }
+  .changelog-label { margin-left: 0; margin-bottom: 10px; }
+  .changelog-sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)); font-size: 13px; gap: 2px; }
+  .changelog-sidebar nav a { padding: 8px; }
+  .changelog-article { font-size: 15px; }
+}
